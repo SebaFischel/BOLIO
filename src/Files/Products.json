@@ -1,0 +1,13 @@
+[
+	{
+		"title": "Cartuchera",
+		"description": "Escolar",
+		"code": "123",
+		"price": 232,
+		"status": "OK",
+		"stock": 45,
+		"category": "Grandes",
+		"thumbnails": "No hay",
+		"id": 1
+	}
+]

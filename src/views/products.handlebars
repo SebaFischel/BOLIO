@@ -1,0 +1,34 @@
+<div>
+    <p>Bienvenidos</p>
+    <h1>Tu perfil (sin datos sensibles)</h1>
+    <p>{{user.name}}</p>
+    <p>{{user.email}}</p>
+    <p>{{user.age}}</p>
+</div>
+
+<div>
+    {{#each products}}
+
+    <p>{{this.title}}</p>
+    <p>{{this.description}}</p>
+    <p>{{this.code}}</p>
+    <p>{{this.price}}</p>
+    <p>{{this.status}}</p>
+    <p>{{this.stock}}</p>
+    <p>{{this.category}}</p>
+    <p>{{this.thumbnails}}</p>
+
+    {{/each}}
+
+    <a href=""><button>Agregar al carrito</button></a>
+
+    {{#if hasPrevPage}}
+    <a href="/products?page={{prevPage}}&limit=5"><button>Anterior</button></a>
+    {{/if}}
+
+    {{#if hasNextPage}}
+    <a href="/products?page={{nextPage}}&limit=5"><button>Siguiente</button></a>
+    {{/if}}
+        <a href="/api/sessions/logout"><button>Salir</button></a>
+
+</div>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de productos</title>
+</head>
+<body>
+        <h1>Lista de productos</h1>
+    <ul>
+      {{#each products}}
+        <li>{{this.id}}</li>
+        <li>{{this.title}}</li>
+        <li>{{this.description}}</li>
+        <li>{{this.price}}</li>
+        <li>{{this.category}}</li>
+        <li>{{this.stock}}</li>
+        <li>{{this.code}}</li>
+      {{/each}}
+    </ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  
+  
+  socket.on('productCreated', (product) => {
+   
+    const productList = document.getElementById();
+    const newProduct = document.createElement('li');
+    newProduct.textContent = product.id + product.title + product.description + product.price + product.category + product.stock + product.code;
+    productList.appendChild(newProduct);
+  });
+  
+  
+  socket.on('productDeleted', (productId) => {
+   
+    const productList = document.getElementById();
+    const products = Array.from(productList.children);
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
+      if (product.textContent.includes(productId)) {
+        productList.removeChild(product);
+        break;
+      }
+    }
+  });
+
+</script>
+</body>
+</html>
