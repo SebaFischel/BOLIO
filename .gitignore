@@ -1,0 +1,28 @@
+# Dependencias de Node.js
+/node_modules
+
+# Archivos generados por diferentes herramientas
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+
+# Carpeta de compilación
+/dist
+
+# Ambiente de desarrollo
+.env
+
+# Mac OS
+.DS_Store
+
+# Editor de código
+.vscode
+
+# Carpeta de caché de npm
+/.npm
+
+# Logs
+*.log
+logs
