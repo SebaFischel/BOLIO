@@ -1,10 +1,10 @@
-import cartModel from '../models/CartModel.js';
-import fs from 'fs';
+import cartModel from "../models/CartModel.js";
+import fs from "fs";
 
 export default class Carts {
   constructor() {
-    console.log('Working carts with DB');
-    this.path = 'src/Files/carts.json';
+    console.log("Working carts with DB");
+    this.path = "src/Files/carts.json";
   }
 
   async getAll() {
@@ -13,24 +13,45 @@ export default class Carts {
   }
 
   async save(cart) {
-    const result = await cartModel.create(cart);
-
-    const carts = await this.readCartsFromFile();
-    if (carts.length === 0) {
-      cart.id = 1;
-    } else {
-      cart.id = carts[carts.length - 1].id + 1;
+    try {
+      const result = await cartModel.create(cart);
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al guardar el carrito en la base de datos");
     }
-
-    carts.push(cart);
-    await this.writeCartsToFile(carts);
-    return result;
   }
 
   async getById(id) {
-    const cart = await cartModel.findOne({ id }).lean();
+    const cart = await cartModel.findOne({ _id: id }).lean();
+    if (!cart) {
+      return "Cart not found";
+    }
     return cart;
   }
+
+  async addProductToCart(cartId, productId) {
+    try {
+      const cart = await cartModel.findById(cartId);
+      if (!cart) {
+        return null;
+      }
+      const existingProductIndex = cart.products.findIndex(
+        (product) => product.product === productId
+      );
+      if (existingProductIndex !== -1) {
+        cart.products[existingProductIndex].quantity += 1;
+      } else {
+        cart.products.push({ product: productId, quantity: 1 });
+      }
+      const updatedCart = await cart.save();
+      return updatedCart;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al agregar el producto al carrito");
+    }
+  }
+  
 
   async deleteProductCart(id) {
     const carts = await this.readCartsFromFile();
