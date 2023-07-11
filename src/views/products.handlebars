@@ -8,7 +8,6 @@
 
 <div>
     {{#each products}}
-
     <p>{{this.title}}</p>
     <p>{{this.description}}</p>
     <p>{{this.code}}</p>
@@ -18,9 +17,10 @@
     <p>{{this.category}}</p>
     <p>{{this.thumbnails}}</p>
 
+    <a href="/api/carts/cid/product/pid"><button>Agregar al carrito</button></a>
+
     {{/each}}
 
-    <a href=""><button>Agregar al carrito</button></a>
 
     {{#if hasPrevPage}}
     <a href="/products?page={{prevPage}}&limit=5"><button>Anterior</button></a>

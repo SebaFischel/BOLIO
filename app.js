@@ -12,18 +12,23 @@ import initializePassport from './src/config/passport.config.js';
 import passport from 'passport';
 import sessionsRouter from './src/routers/sessions.router.js';
 import ProductManager from './src/managers/ProductManager.js';
+import authRouter from './src/routers/auth.router.js'
+
 
 const app = express();
-const httpServer = app.listen(8080, () => console.log("Listening on PORT 8080"));
-const io = new Server(httpServer);
+const server = app.listen(8080, () => console.log("Listening on PORT 8080"));
+const io = new Server(server);
+
 
 initializePassport();
 app.engine('handlebars', handlebars.engine());
-app.set('views', __dirname + '/views');
+app.set('views', `${__dirname}/views`);
 app.set('view engine', 'handlebars');
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
 
 app.use(session({
   store: MongoStore.create({
@@ -43,9 +48,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api/sessions', sessionsRouter);
-app.use('/api/view', viewsRouter);
+app.use('/', viewsRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
+app.use('/api/auth', authRouter);
+
+const productsOnList = [];
+const messages = [];
 
 io.on("connection", (socket) => {
   console.log("Connection with socket:", socket.id);
@@ -62,6 +71,16 @@ io.on("connection", (socket) => {
     ProductManager.deleteProduct(id);
     io.emit("productList", productsOnList);
   });
+
+  socket.on('message', data => {
+    messages.push(data);
+    io.emit('messageLogs', messages);
+});
+
+socket.on('authenticated', data => {
+    socket.emit('messageLogs', messages);
+    socket.broadcast.emit('newUserConnected', data);
+});
 });
 
 try {

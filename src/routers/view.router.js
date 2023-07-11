@@ -8,8 +8,8 @@ const productManager = new ProductManager();
 
 
 router.get('/', (req, res) => {
-    res.render('index',{});
-})
+  res.render('index');
+});
 
 router.get('/realTimeProducts', async (req, res) => {
   const products = await productManager.getAll();

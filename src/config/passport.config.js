@@ -1,8 +1,10 @@
 import passport from 'passport';
 import local from 'passport-local';
 import userModel from '../models/UsersModel.js';
-import { createHash, isValidPassword } from '../utils.js';
 import GitHubStrategy from 'passport-github2';
+import { createHash, isValidPassword } from '../utils.js';
+import __dirname from '../utils.js';
+
 
 const LocalStrategy = local.Strategy;
 
@@ -19,12 +21,14 @@ const initializePassport = () => {
                 return done(null, false)
             }
 
+            const hashedPassword = createHash(password);
+
             const userToSave = {
                 first_name,
                 last_name,
                 email,
                 age,
-                password: createHash(password)
+                password: hashedPassword
             }
     
             const result = await userModel.create(userToSave);
@@ -67,7 +71,8 @@ const initializePassport = () => {
                 const newUser = {
                     first_name: profile._json.name,
                     last_name: '',
-                    email: '',
+                    email,
+                    age: 24,
                     password: '' 
                 }
     

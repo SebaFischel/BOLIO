@@ -67,7 +67,7 @@ router.post("/:cid/product/:pid", async (req, res) => {
   }
 });
 
-router.delete("/:cid/products/:pid", (req, res) => {
+router.delete("/:cid/product/:pid", (req, res) => {
   const cartId = req.params.cid;
   const productId = req.params.pid;
   const cart = carts.find((cart) => cart.id === cartId);
