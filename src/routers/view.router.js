@@ -1,41 +1,15 @@
 import { Router } from 'express';
-import ProductManager from '../managers/ProductManager.js';
-import productModel from '../models/ProductModel.js';
+import { index, realTimeProducts, products, registerView, loginView, productsPrivate } from '../controllers/view.controller.js';
 
 const router = Router();
-const productManager = new ProductManager();
 
 
 
-router.get('/', (req, res) => {
-  res.render('index');
-});
+router.get('/', index)
 
-router.get('/realTimeProducts', async (req, res) => {
-  const products = await productManager.getAll();
-  res.render('realTimeProducts', { products })
-});
+router.get('/realTimeProducts', realTimeProducts)
 
-router.get('/products', async (req, res) => {
-  const { page = 1, limit = 5 } = req.query;
-  const {
-    docs,
-    hasPrevPage,
-    hasNextPage,
-    nextPage,
-    prevPage
-  } = await productModel.paginate({}, { limit, page, lean: true});
-  
-  const products = docs;
-  
-  res.render('products',{
-    products,
-    hasPrevPage,
-    hasNextPage,
-    nextPage,
-    prevPage
-  });
-});
+router.get('/products', products)
 
 const publicAccess = (req, res, next) => {
   if(req.session.user) return res.redirect('/products');
@@ -47,19 +21,11 @@ const privateAccess = (req, res, next) => {
   next();
 }
 
-router.get('/register', publicAccess, (req, res) => {
-  res.render('register');
-});
+router.get('/register', publicAccess, registerView)
 
-router.get('/login', publicAccess, (req, res) => {
-  res.render('login');
-});
+router.get('/login', publicAccess, loginView)
 
-router.get('/products', privateAccess, (req, res) => {
-  res.render('products', {
-      user: req.session.user
-  });
-});
+router.get('/products', privateAccess, productsPrivate)
 
 
 

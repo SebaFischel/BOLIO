@@ -23,7 +23,7 @@ formLogin.addEventListener('submit', async e => {
 
   if (access_token) {
     localStorage.setItem("access_token", access_token);
-    location.href = '/'
+    location.href = '/products'
   } else {
     location.href = '/loginJWT.html'
   }

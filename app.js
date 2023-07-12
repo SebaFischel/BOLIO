@@ -5,14 +5,15 @@ import cartsRouter from './src/routers/carts.router.js';
 import __dirname from './src/utils.js';
 import viewsRouter from './src/routers/view.router.js';
 import { Server } from 'socket.io';
-import mongoose from 'mongoose';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import initializePassport from './src/config/passport.config.js';
+import initializePassport from './src/passport/passport.config.js';
 import passport from 'passport';
 import sessionsRouter from './src/routers/sessions.router.js';
-import ProductManager from './src/managers/ProductManager.js';
-import authRouter from './src/routers/auth.router.js'
+import ProductManager from './src/dao/dbManagers/ProductManager.js';
+import authRouter from './src/routers/auth.router.js';
+import './src/dao/dbManagers/db.Config.js';
+import mongoose from 'mongoose';
 
 
 const app = express();
@@ -83,9 +84,9 @@ socket.on('authenticated', data => {
 });
 });
 
-try {
-  await mongoose.connect('mongodb+srv://fischelsebastian:coderhouse@cluster123.gudtuxt.mongodb.net/ecommerceCH?retryWrites=true&w=majority');
-  console.log('DB CONNECTED');
-} catch (error) {
-  console.log(error);
-}
+// try {
+//   await mongoose.connect('mongodb+srv://fischelsebastian:coderhouse@cluster123.gudtuxt.mongodb.net/ecommerceCH?retryWrites=true&w=majority');
+//   console.log('DB CONNECTED');
+// } catch (error) {
+//   console.log(error);
+// }
