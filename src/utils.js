@@ -27,11 +27,8 @@ export const authToken = (req, res, next) => {
 }
 
 
-export const createHash = (password) => {
-    const salt = bcrypt.genSaltSync(10); 
-    const hash = bcrypt.hashSync(password, salt); 
-    return hash;
-  };
+export const createHash = password =>
+    bcrypt.hashSync(password, bcrypt.genSaltSync(10));
   
   export const isValidPassword = (user, password) =>
     bcrypt.compareSync(password, user.password);

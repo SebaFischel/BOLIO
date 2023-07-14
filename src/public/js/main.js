@@ -8,7 +8,7 @@
       });
   
       if (respuesta.status != 200) {
-        return location.href = '/loginJWT.html'
+        return location.href = '/login.html'
       }
   
       const data = await respuesta.json();
@@ -24,5 +24,5 @@
   
   function logout() {
     localStorage.removeItem('access_token');
-    location.href = '/loginJWT.html'
+    location.href = '/login.html'
   }

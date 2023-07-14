@@ -1,6 +1,7 @@
 import userModel from '../dao/dbManagers/models/UsersModel.js';
 import { createHash, isValidPassword } from '../utils.js';
 import { Router } from 'express';
+import __dirname from '../utils.js';
 
 const router = Router();
 
@@ -8,6 +9,10 @@ const router = Router();
 const registerUser = async (req, res) => {
     try {
       const { first_name, last_name, email, age, password } = req.body;
+
+      if (!first_name || !last_name  || !email || !age  || !password)
+      return res.status(400).send({ status: 'error', error: 'Incomplete values' });
+
       const exists = await userModel.findOne({ email });
   
       if (exists) {
@@ -15,20 +20,18 @@ const registerUser = async (req, res) => {
       }
   
       const hashedPassword = createHash(password);
-  
-      const user = {
-        first_name,
-        last_name,
-        email,
-        age,
-        password: hashedPassword
+      
+      const newUser = {
+        ...req.body
       };
-  
-      await userModel.create(user);
+      
+      newUser.password = hashedPassword;
+
+      await userModel.create(newUser);
       res.redirect('/login'); 
     } catch (error) {
       console.log(error);
-      res.status(500).send({ status: 'error', error });
+      res.status(500).send({ status: 'error', error: 'Internal Server Error' })
     }
   };
   
