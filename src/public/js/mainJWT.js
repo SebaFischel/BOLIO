@@ -1,6 +1,6 @@
 (async () => {
     try {
-      const respuesta = await fetch('/api/auth/current', {
+      const respuesta = await fetch('api/auth/current', {
         method: 'GET',
         headers: {
           'authorization': `Bearer ${localStorage.getItem('access_token')}`

@@ -1,5 +1,7 @@
 import cartModel from '../dbManagers/models/CartModel.js';
 import fs from "fs";
+import productModel from '../dbManagers/models/ProductModel.js'
+import ticketModel from './models/TicketModel.js';
 
 export default class Carts {
   constructor() {
@@ -53,14 +55,32 @@ export default class Carts {
   }
   
 
-  async deleteProductCart(id) {
-    const carts = await this.readCartsFromFile();
-    const cartIndex = carts.findIndex((cart) => cart.id === id);
-    if (cartIndex === -1) {
-      return "Cart not found";
-    } else {
-      carts.splice(cartIndex, 1);
-      await this.writeCartsToFile(carts);
+  async deleteProductCart(cartId, productId) {
+    try {
+      const cart = await cartModel.findById(cartId);
+      if (!cart) {
+        return "Cart not found";
+      }
+  
+      const existingProductIndex = cart.products.findIndex(
+        (product) => product.product === productId
+      );
+  
+      if (existingProductIndex !== -1) {
+        const product = cart.products[existingProductIndex];
+        if (product.quantity > 1) {
+          product.quantity -= 1;
+        } else {
+          cart.products.splice(existingProductIndex, 1);
+        }
+        const updatedCart = await cart.save();
+        return updatedCart;
+      } else {
+        return "Product not found in cart";
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al eliminar el producto del carrito");
     }
   }
 
@@ -91,5 +111,70 @@ export default class Carts {
         }
       });
     });
+  }
+
+  async purchaseCart(cartId) {
+    try {
+      console.log('Inicio del método purchaseCart'); // Agrega este console.log()
+  
+      // Obtener el carrito
+      const cart = await cartModel.findById(cartId);
+      if (!cart) {
+        throw new Error("Cart not found");
+      }
+
+      // Recorrer los productos del carrito
+
+      const unprocessedProducts = [];
+
+      for (const productItem of cart.products) {
+        console.log(`Procesando producto: ${productItem.product}`); // Agrega este console.log()
+
+        const product = await productModel.findById(productItem.product);
+        if (!product) {
+          unprocessedProducts.push(productItem.product); // Agregar el ID del producto no encontrado al arreglo
+          continue; // Continuar con el siguiente producto
+        }
+
+        // Verificar el stock del producto
+        if (product.stock >= productItem.quantity) {
+          // Restar la cantidad del producto al stock
+          product.stock -= productItem.quantity;
+          await product.save();
+        } else {
+          unprocessedProducts.push(productItem.product); // Agregar el ID del producto con stock insuficiente al arreglo
+          continue; // Continuar con el siguiente producto
+        }
+      }
+
+      // Eliminar el carrito después de finalizar la compra
+      await cartModel.findByIdAndDelete(cartId);
+
+      // Generar el ticket si no hay productos no procesados
+      if (unprocessedProducts.length === 0) {
+        const ticketData = {
+          code: '50',
+          purchase_datetime: Date.now(),
+          amount: '2',
+          purchaser: 'Sebastian',
+        };
+
+        const ticket = new ticketModel(ticketData);
+        await ticket.save();
+
+        console.log('Finalización exitosa de la compra');
+        return "Purchase completed successfully";
+      }
+
+      // Retornar los IDs de los productos no procesados junto con el mensaje de error
+      console.error('Error durante el proceso de compra');
+      return {
+        error: 'Error during the purchase process',
+        unprocessedProducts,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error during the purchase process");
+    }
   }
 }

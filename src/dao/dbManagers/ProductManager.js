@@ -1,4 +1,8 @@
 import productModel from '../dbManagers/models/ProductModel.js'
+import CartManager from "../dbManagers/CartManager.js"
+
+
+const cartManager = new CartManager();
 
 export default class Products {
   constructor() {
@@ -54,6 +58,37 @@ export default class Products {
       } else {
         return updatedProduct;
       }
+    }
+  }
+
+  async removeProductFromCart(cartId, productId) {
+    try {
+      const cart = await cartManager.getById(cartId);
+      if (!cart) {
+        return null;
+      }
+
+      const existingProductIndex = cart.products.findIndex(
+        (product) => product.product === productId
+      );
+
+      if (existingProductIndex !== -1) {
+        const existingProduct = cart.products[existingProductIndex];
+
+        if (existingProduct.quantity > 1) {
+          existingProduct.quantity -= 1;
+        } else {
+          cart.products.splice(existingProductIndex, 1);
+        }
+
+        const updatedCart = await cartManager.save();
+        return updatedCart;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error al eliminar el producto del carrito");
     }
   }
 }

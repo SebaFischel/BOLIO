@@ -54,26 +54,27 @@ const getCarts = async (req, res) => {
     }
   };
 
-  const deleteProductFromCart = (req, res) => {
-    const cartId = req.params.cid;
-    const productId = req.params.pid;
-    const cart = carts.find((cart) => cart.id === cartId);
+  const deleteProductFromCart = async (req, res) => {
+    try {
+      const cartId = req.params.cid;
+      const productId = req.params.pid;
   
-    if (!cart) {
-      return res.status(404).json({ error: "Cart not found" });
+      const updatedCart = await cartManager.deleteProductCart(cartId, productId);
+      if (typeof updatedCart === "string") {
+        if (updatedCart === "Cart not found") {
+          res.status(404).json({ error: 'El carrito no existe' });
+        } else if (updatedCart === "Product not found in cart") {
+          res.status(404).json({ error: 'El producto no existe en el carrito' });
+        }
+      } else {
+        res.status(200).json(updatedCart);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
     }
-  
-    const productIndex = cart.products.indexOf(productId);
-    if (productIndex === -1) {
-      return res.status(404).json({ error: "Product not found in cart" });
-    }
-  
-    cart.products.splice(productIndex, 1);
-  
-    return res
-      .status(200)
-      .json({ message: "Product removed from cart successfully" });
   };
+  
 
   const updateCart = (req, res) => {
     const cartId = req.params.cid;
@@ -109,14 +110,27 @@ const getCarts = async (req, res) => {
     res.send("Quantity updated successfully");
   };
 
+  const purchaseCart = async (req, res) => {
+    const cartId = req.params.cid;
+  
+    try {
+      const message = await cartManager.purchaseCart(cartId);
+      res.status(200).json({ message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error during the purchase process' });
+    }
+  };
+
   export default router;
 
   export {
   getCarts,
   postCart,
   getId,
-  postIntoCart,
+  postIntoCart, 
   deleteProductFromCart,
   updateCart,
-  updateProductsToCart
+  updateProductsToCart,
+  purchaseCart
 }

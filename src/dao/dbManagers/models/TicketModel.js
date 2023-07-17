@@ -4,12 +4,12 @@ import mongoosePaginate from 'mongoose-paginate-v2'
 const ticketCollection = 'tickets';
 
 const ticketSchema = new mongoose.Schema({
-    id:{
-        required: true,
+    id: {
+        type: String
     },
     code: {
         type: String,
-        required: true,
+        required: true
     },
     purchase_datetime: {
         type: Number,
@@ -17,11 +17,11 @@ const ticketSchema = new mongoose.Schema({
     },
     amount: {
         type: String,
-        required: true,
+        required: true
     },
     purchaser: {
         type: String,
-        required: true,
+        required: true
     }
 });
 
