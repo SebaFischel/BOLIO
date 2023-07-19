@@ -30,6 +30,6 @@ formRegister.addEventListener('submit', async e => {
     localStorage.setItem("access_token", access_token);
     location.href = '/loginJWT.html'
   } else {
-    location.href = '/register.html'
+    location.href = '/registerJWT.html'
   }
 })

@@ -35,7 +35,7 @@
 
 <script>
     function addToCart(productId) {
-        // Envía la solicitud POST para crear un carrito
+      
         fetch('/api/carts/', {
             method: 'POST',
             headers: {
@@ -45,7 +45,7 @@
         })
         .then(response => response.json())
         .then(cart => {
-            // Envía la solicitud POST para agregar el producto al carrito
+            
             fetch('/api/carts/cid/product/pid'.replace('cid', cart._id).replace('pid', productId), {
                 method: 'POST',
                 headers: {
@@ -54,17 +54,17 @@
             })
             .then(response => response.json())
             .then(updatedCart => {
-                // Maneja la respuesta y realiza las acciones necesarias
+                
                 console.log(updatedCart);
-                // Puedes redirigir al usuario a la página del carrito o mostrar un mensaje de éxito aquí
+                
             })
             .catch(error => {
-                // Maneja cualquier error en la solicitud
+               
                 console.error(error);
             });
         })
         .catch(error => {
-            // Maneja cualquier error en la solicitud
+           
             console.error(error);
         });
     }

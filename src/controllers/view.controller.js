@@ -46,9 +46,9 @@ const index = (req, res) => {
 
   const productsPrivate = (req, res) => {
     res.render('products', {
-        user: req.session.user
-    });
-  };
+         user: req.session.user
+     });
+   };
 
   export default router;
 

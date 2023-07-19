@@ -2,6 +2,8 @@ import cartModel from '../dbManagers/models/CartModel.js';
 import fs from "fs";
 import productModel from '../dbManagers/models/ProductModel.js'
 import ticketModel from './models/TicketModel.js';
+import { v4 as uuidv4 } from "uuid";
+
 
 export default class Carts {
   constructor() {
@@ -115,61 +117,62 @@ export default class Carts {
 
   async purchaseCart(cartId) {
     try {
-      console.log('Inicio del método purchaseCart'); // Agrega este console.log()
-  
-      // Obtener el carrito
+      let total = 0;
+      console.log("Inicio del método purchaseCart"); 
+
       const cart = await cartModel.findById(cartId);
       if (!cart) {
         throw new Error("Cart not found");
       }
 
-      // Recorrer los productos del carrito
-
       const unprocessedProducts = [];
 
       for (const productItem of cart.products) {
-        console.log(`Procesando producto: ${productItem.product}`); // Agrega este console.log()
+        console.log(`Procesando producto: ${productItem.product}`); 
 
         const product = await productModel.findById(productItem.product);
         if (!product) {
-          unprocessedProducts.push(productItem.product); // Agregar el ID del producto no encontrado al arreglo
-          continue; // Continuar con el siguiente producto
+          unprocessedProducts.push(productItem.product); 
+          continue; 
         }
-
-        // Verificar el stock del producto
+        
         if (product.stock >= productItem.quantity) {
-          // Restar la cantidad del producto al stock
+          
           product.stock -= productItem.quantity;
           await product.save();
         } else {
-          unprocessedProducts.push(productItem.product); // Agregar el ID del producto con stock insuficiente al arreglo
-          continue; // Continuar con el siguiente producto
+          unprocessedProducts.push(productItem.product); 
+          continue; 
         }
+        cart.products.forEach((e) => {
+          total += e.quantity;
+        });
       }
 
-      // Eliminar el carrito después de finalizar la compra
       await cartModel.findByIdAndDelete(cartId);
 
-      // Generar el ticket si no hay productos no procesados
       if (unprocessedProducts.length === 0) {
+        const fecha = new Date().toLocaleString("en-GB", {
+          hour12: false,
+        });
+        console.log(typeof(fecha))
         const ticketData = {
-          code: '50',
-          purchase_datetime: Date.now(),
-          amount: '2',
-          purchaser: 'Sebastian',
+          code: uuidv4(),
+          purchase_datetime: fecha,
+          amount: total,
+          purchaser: "Sebastian",
         };
 
         const ticket = new ticketModel(ticketData);
         await ticket.save();
 
-        console.log('Finalización exitosa de la compra');
+        console.log("Finalización exitosa de la compra");
         return "Purchase completed successfully";
       }
 
-      // Retornar los IDs de los productos no procesados junto con el mensaje de error
-      console.error('Error durante el proceso de compra');
+      console.error("Error durante el proceso de compra");
       return {
-        error: 'Error during the purchase process',
+        error: "Error during the purchase process",
         unprocessedProducts,
       };
     } catch (error) {

@@ -2,6 +2,7 @@ import userModel from '../dao/dbManagers/models/UsersModel.js';
 import { createHash, isValidPassword } from '../utils.js';
 import { Router } from 'express';
 import __dirname from '../utils.js';
+import { generateToken } from '../utils.js';
 
 const router = Router();
 
@@ -41,39 +42,47 @@ const registerUser = async (req, res) => {
       const user = await userModel.findOne({ email });
   
       if (!user) {
-        return res.status(400).send({ status: 'error', error: 'User not found' });
+        return res.status(400).json({ status: 'error', error: 'User not found' });
       }
   
-     // const isValid = isValidPassword(user.password, password);
+      const isValid = await isValidPassword(password, user.password);
   
-     // if (!isValid) {
-      //  return res.status(400).send({ status: 'error', error: 'Invalid password' });
-     // }
+      if (!isValid) {
+        return res.status(400).json({ status: 'error', error: 'Invalid password' });
+      }
   
       const role =
         email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
   
-      if (role === 'admin') {
-        res.redirect('/products');
-      } else {
-        res.redirect('/products');
-      }
+      // Crear el token JWT utilizando el middleware `generateToken`
+      const token = generateToken({ email, role });
+  
+      // Enviar el token en la respuesta
+      return res.json({ status: 'success', token });
+  
     } catch (error) {
       console.log(error);
-      res.status(500).send({ status: 'error', error });
+      return res.status(500).json({ status: 'error', error });
     }
   });
+  
+  
+  const removeTokenFromStorage = () => {
+    localStorage.removeItem('access_token');
+};
+
 
   const logoutUser = (req, res) => {
     req.session.destroy(err => {
         if(err) return res.status(500).send({ status: 'error', error: 'Logout fail' });
+        removeTokenFromStorage();
         res.redirect('/login')
     })
 };
 
 const loginGithub = async (req, res) => {
     res.send({ status: "success", message: "User registered" })
-    res.redirect('/')
+    res.redirect('/products')
   };
 
   const loginCallback = async (req, res) => {

@@ -13,7 +13,9 @@ import sessionsRouter from './src/routers/sessions.router.js';
 import ProductManager from './src/dao/dbManagers/ProductManager.js';
 import authRouter from './src/routers/auth.router.js';
 import './src/dao/dbManagers/db.Config.js';
-import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
+import twilio from 'twilio';
+import dotenv from 'dotenv'
 
 
 const app = express();
@@ -90,3 +92,57 @@ socket.on('authenticated', data => {
 // } catch (error) {
 //   console.log(error);
 // }
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    port: 587,
+    auth: {
+        user: 'fischel.sebastian@gmail.com',
+        pass: 'vazwbjtzlzpfpsep'
+    }
+});
+
+app.get('/mail', async (req, res) => {
+    await transporter.sendMail({
+        from: 'CorderHouse 39760',
+        to: 'sebadelgm@gmail.com',
+        subject: 'Correo de prueba 39760',
+        html: `<div><h1>Hola, esto es una prueba de envio de correo usando gmail</h1>`
+    });
+    res.send('Correo enviado');
+});
+
+dotenv.config();
+
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
+const client = twilio(
+    TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_PHONE_NUMBER
+)
+
+
+app.post('/sms-custom', async (req, res) => {
+  const { name, product } = req.body;
+  await client.messages.create({
+      from: TWILIO_PHONE_NUMBER,
+      to: '+59893656610',
+      body: `Hola ${name} gracias por tu compra. Tu producto es ${product}`
+  });
+
+  res.send('SMS sent')
+});
+
+app.post('/whatsapp', async(req, res) => {
+  const { name, product } = req.body;
+  await client.messages.create({
+      body: `Hola ${name} gracias por tu compra. Tu producto es ${product}`,
+      from: 'whatsapp:+14155238886',
+      to: 'whatsapp:+59893656610',
+  });
+
+  res.send('Whatsapp sent')
+})
