@@ -7,33 +7,50 @@ const productManager = new ProductManager('../dao/dbManagers/ProductManager.js')
 const router = Router();
 
 const postProduct = async (req, res) => {
+  const { title, description, price, thumbnail, code, stock, category } = req.body;
+
+  
+  let PastTests = 0;
+  const TotalTests = 2;
+
+  if (!title || !description || !price || !code || !stock || !category) {
+    let missingProperties = [];
+
+    if (!title) missingProperties.push('title');
+    if (!description) missingProperties.push('description');
+    if (!price) missingProperties.push('price');
+    if (!code) missingProperties.push('code');
+    if (!stock) missingProperties.push('stock');
+    if (!category) missingProperties.push('category');
+
+    console.log(`Test 1: Incorrecto. Faltan las siguientes propiedades: ${missingProperties.join(', ')}`);
+    return res.status(400).send({ status: "error", error: `Faltan las siguientes propiedades: ${missingProperties.join(', ')}` });
+  } else {
+    PastTests++;
+    console.log('Test 1: Correcto');
+  }
+  try {
     const product = {
-      title: req.body.title,
-      description: req.body.description,
-      code: req.body.code,
-      price: req.body.price,
-      status: req.body.status,
-      stock: req.body.stock,
-      category: req.body.category,
-      thumbnails: req.body.thumbnails,
+      title: title,
+      description: description,
+      price: price,
+      code: code,
+      stock: stock,
+      category: category,
+      status: true,
     };
-  
-    if (!product.status) {
-      product.status = true;
-    }
-  
-    if (
-      !product.title ||
-      !product.description ||
-      !product.code ||
-      !product.price ||
-      !product.category ||
-      !product.stock
-    )
-      return res.status(400).send({ error: "incomplete values" });
+
     const result = await productManager.save(product);
+    console.log('Test 2: Correcto');
+    PastTests++;
     res.send({ status: "success", result });
-  };
+  } catch (error) {
+    console.log(`Test 2: Incorrecto. Error al guardar el producto: ${error.message}`);
+    res.status(500).send({ status: "error", error: `Error al guardar el producto: ${error.message}` });
+  }
+
+  console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
+};
 
   const getProducts = async (req, res) => {
     const products = await productManager.getAll();

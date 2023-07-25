@@ -4,6 +4,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename); 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { faker } from '@faker-js/faker';
+
 
 const PRIVATE_KEY = 'coder39760';
 
@@ -33,8 +35,38 @@ export const isValidPassword = async (password, hash) => {
 
 export const createHash = password =>
     bcrypt.hashSync(password, bcrypt.genSaltSync(10));
-  
 
+    const fakeProductGenerator = () => {
+        return {
 
+            id: faker.database.mongodbObjectId(),
+        
+            title: faker.commerce.productName(),
+        
+            description: faker.commerce.productDescription(),
+        
+            code: faker.random.alphaNumeric(6),
+        
+            price: faker.commerce.price(),
+        
+            thumbnail: faker.image.image(),
+        
+            stock: faker.random.numeric(1),
+        
+            category: faker.commerce.productMaterial(),
+        
+          };
+      };
+      
+      export const generateMockProduct = () => {
+        let products = [];
+      
+        for (let i = 0; i < 100; i++) {
+          products.push(fakeProductGenerator());
+        }
+      
+        return products;
+      };
+    
 
 export default __dirname;

@@ -89,5 +89,8 @@
     "utils-merge": "^1.0.1",
     "uuid": "^9.0.0",
     "vary": "^1.1.2"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.0.2"
   }
 }

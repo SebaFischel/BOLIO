@@ -15,7 +15,9 @@ import authRouter from './src/routers/auth.router.js';
 import './src/dao/dbManagers/db.Config.js';
 import nodemailer from 'nodemailer';
 import twilio from 'twilio';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
+import  mockingProducts  from './src/routers/mocking.router.js'
+
 
 
 const app = express();
@@ -55,6 +57,7 @@ app.use('/', viewsRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/mocking', mockingProducts)
 
 const productsOnList = [];
 const messages = [];

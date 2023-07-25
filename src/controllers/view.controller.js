@@ -50,6 +50,11 @@ const index = (req, res) => {
      });
    };
 
+   const viewCart = (req, res) => {
+    
+    res.render('cart');
+  };
+
   export default router;
 
   export {
@@ -58,6 +63,7 @@ const index = (req, res) => {
     productsPrivate,
     products,
     realTimeProducts,
-    index
+    index,
+    viewCart
   }
 

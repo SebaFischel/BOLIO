@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de Compras</title>
+
+</head>
+
+<body>
+    <h1>Tu Carrito de Compras</h1>
+
+    <div id="cartItemsContainer">
+
+    </div>
+
+    <div id="cartTotal">
+
+    </div>
+
+    <button id="checkoutButton">Realizar compra</button>
+
+
+
+    <button onclick="goToProducts()">Volver a productos</button>
+
+</body>
+
+</html>
+
+<script>
+
+    function loadCartView() {
+        fetch("/api/carts/:cid")
+            .then(response => response.json())
+            .then(cart => {
+  
+                const cartItemsContainer = document.getElementById("cartItemsContainer");
+                cartItemsContainer.innerHTML = ""; 
+
+
+                cart.products.forEach(item => {
+                    const productElement = document.createElement("div");
+                    productElement.innerHTML = `
+                        <p>${item.product.title}</p>
+                        <p>Precio: ${item.product.price.toFixed(2)}</p>
+                        <p>Cantidad: ${item.quantity}</p>
+                    `;
+                    cartItemsContainer.appendChild(productElement);
+                });
+
+
+                const cartTotalElement = document.getElementById("cartTotal");
+                cartTotalElement.textContent = `Precio Total: ${getCartTotal(cart).toFixed(2)}`;
+
+
+                const checkoutButton = document.getElementById("checkoutButton");
+                checkoutButton.addEventListener("click", () => {
+
+                });
+            })
+            .catch(error => {
+                console.error(error);
+
+            });
+    }
+
+
+    function getCartTotal(cart) {
+        let total = 0;
+        cart.products.forEach(item => {
+            total += item.product.price * item.quantity;
+        });
+        return total;
+    }
+
+
+    document.addEventListener("DOMContentLoaded", loadCartView);
+
+    function goToProducts() {
+
+        window.location.href = "/products";
+    }
+</script>

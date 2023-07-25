@@ -34,20 +34,33 @@ const getCarts = async (req, res) => {
 
   const postIntoCart = async (req, res) => {
     try {
+      let PastTests = 0;
+      const TotalTests = 2;
+  
       const cartId = req.params.cid;
       const productId = req.params.pid;
   
       const product = await productModel.getProductById(productId);
       if (!product) {
+        PastTests++;
+        console.log("Test 1: Incorrecto. Producto no encontrado");
         return res.status(404).send({ error: "Producto no encontrado" });
+      } else {
+        PastTests++;
+        console.log("Test 1: Correcto");
       }
   
       const updatedCart = await cartManager.addProductToCart(cartId, productId);
       if (updatedCart) {
+        PastTests++;
+        console.log("Test 2: Correcto");
         res.send(updatedCart);
       } else {
+        console.log("Test 2: Incorrecto. Carrito no encontrado");
         return res.status(404).send({ error: "Carrito no encontrado" });
       }
+  
+      console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
     } catch (error) {
       console.error(error);
       return res.status(500).send({ error: error.message });

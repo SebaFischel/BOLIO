@@ -21,6 +21,17 @@
 
     {{/each}}
 
+    <a href="/cart">
+            <button style="background-color: #ffffff; padding: 10px; border: 1px solid #cccccc; border-radius: 50%;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shopping-cart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                <path d="M17 17h-11v-14h-2"></path>
+                <path d="M6 5l14 1l-1 7h-13"></path>
+                </svg>
+            </button>
+        </a>
 
     {{#if hasPrevPage}}
     <a href="/products?page={{prevPage}}&limit=5"><button>Anterior</button></a>
@@ -34,37 +45,41 @@
 </div>
 
 <script>
+    let currentCartId = null;
     function addToCart(productId) {
-      
-        fetch('/api/carts/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({}),
-        })
-        .then(response => response.json())
-        .then(cart => {
-            
-            fetch('/api/carts/cid/product/pid'.replace('cid', cart._id).replace('pid', productId), {
+
+        if (!currentCartId) {
+            fetch('/api/carts/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({}),
             })
             .then(response => response.json())
-            .then(updatedCart => {
-                
-                console.log(updatedCart);
-                
+            .then(cart => {
+                currentCartId = cart._id;
+                addProductToCart(productId);
             })
             .catch(error => {
-               
                 console.error(error);
             });
+        } else {
+            addProductToCart(productId);
+        }
+    }
+    function addProductToCart(productId) {
+        fetch(`/api/carts/${currentCartId}/product/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(updatedCart => {
+            console.log(updatedCart);
         })
         .catch(error => {
-           
             console.error(error);
         });
     }

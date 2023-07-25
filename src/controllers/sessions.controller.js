@@ -38,28 +38,41 @@ const registerUser = async (req, res) => {
   
   const loginUser = router.post('/login', async (req, res) => {
     try {
+      let PastTests = 0;
+      const TotalTests = 3;
+  
       const { email, password } = req.body;
       const user = await userModel.findOne({ email });
   
       if (!user) {
+        PastTests++;
+        console.log("Test 1: Incorrecto. Usuario no encontrado");
         return res.status(400).json({ status: 'error', error: 'User not found' });
+      } else {
+        PastTests++;
+        console.log("Test 1: Correcto");
       }
   
       const isValid = await isValidPassword(password, user.password);
   
       if (!isValid) {
+        PastTests++;
+        console.log("Test 2: Incorrecto. Contraseña inválida");
         return res.status(400).json({ status: 'error', error: 'Invalid password' });
+      } else {
+        PastTests++;
+        console.log("Test 2: Correcto");
       }
   
-      const role =
-        email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
-  
-      // Crear el token JWT utilizando el middleware `generateToken`
+      const role = email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
       const token = generateToken({ email, role });
   
-      // Enviar el token en la respuesta
-      return res.json({ status: 'success', token });
+      PastTests++;
+      console.log("Test 3: Correcto");
   
+      console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
+  
+      return res.json({ status: 'success', token, role});
     } catch (error) {
       console.log(error);
       return res.status(500).json({ status: 'error', error });
