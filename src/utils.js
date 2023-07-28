@@ -45,13 +45,13 @@ export const createHash = password =>
         
             description: faker.commerce.productDescription(),
         
-            code: faker.random.alphaNumeric(6),
+            code: faker.string.alpha(6),
         
             price: faker.commerce.price(),
         
             thumbnail: faker.image.image(),
         
-            stock: faker.random.numeric(1),
+            stock: faker.string.numeric(1),
         
             category: faker.commerce.productMaterial(),
         
