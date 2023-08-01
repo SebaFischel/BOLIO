@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { generateToken } from '../utils.js';
+import { logger } from '../utils.js'
 
 const router = Router();
 const users = [];
@@ -23,7 +24,7 @@ const jwtRegister = async (req, res) => {
 
         res.send({ status: 'success', access_token: accessToken })
     } catch (error) {
-        console.log(error);
+        logger.fatal(error);
         res.status(500).send({ status: 'error', error: error.message });
     }
 }
@@ -40,7 +41,7 @@ const jwtLogin = async (req, res) => {
 
         res.send({ status: 'success', access_token: accessToken })
     } catch (error) {
-        console.log(error);
+        logger.fatal(error);
         res.status(500).send({ status: 'error', error });
     }
 };

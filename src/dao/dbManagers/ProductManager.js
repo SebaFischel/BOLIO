@@ -1,12 +1,13 @@
 import productModel from '../dbManagers/models/ProductModel.js'
 import CartManager from "../dbManagers/CartManager.js"
+import { logger } from '../../utils.js'
 
 
 const cartManager = new CartManager();
 
 export default class Products {
   constructor() {
-    console.log("Working products with DB");
+    logger.info("Working products with DB");
     this.path = "src/Files/Products.json";
   }
 
@@ -87,7 +88,7 @@ export default class Products {
         return null;
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       throw new Error("Error al eliminar el producto del carrito");
     }
   }

@@ -5,9 +5,14 @@ const __dirname = dirname(__filename);
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { faker } from '@faker-js/faker';
+import dotenv from 'dotenv';
+import winston from 'winston';
 
+dotenv.config();
 
 const PRIVATE_KEY = 'coder39760';
+
+const ENVIRONMENT = process.env.NODE_ENV;
 
 export const generateToken = (user) => {
     const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: '30m' });
@@ -69,4 +74,90 @@ export const createHash = password =>
       };
     
 
+      const customLevelOptions = {
+        levels: {
+          debug: 5,
+          http: 4,
+          info: 3,
+          warning: 2,
+          error: 1,
+          fatal: 0,
+        },
+        colors: {
+          http: 'cyan',
+          fatal: 'red',
+          error: 'red',
+          warning: 'yellow',
+          info: 'green',
+          debug: 'blue',
+        },
+      };
+      
+      let logger;
+      
+      
+      if (ENVIRONMENT === 'development') {
+        logger = winston.createLogger({
+          levels: customLevelOptions.levels,
+          transports: [
+            new winston.transports.Console({
+              level: 'debug',
+              format: winston.format.combine(
+                winston.format.colorize({
+                  all: true,
+                  colors: customLevelOptions.colors,
+                }),
+                winston.format.simple()
+              ),
+            }),
+          ],
+        });
+      } else if (ENVIRONMENT === 'production') {
+        logger = winston.createLogger({
+          levels: customLevelOptions.levels,
+          transports: [
+            new winston.transports.Console({
+              level: 'info',
+              format: winston.format.combine(
+                winston.format.colorize({
+                  all: true,
+                  colors: customLevelOptions.colors,
+                }),
+                winston.format.simple()
+              ),
+            }),
+            new winston.transports.File({
+              filename: 'logs/errors.log',
+              level: 'error',
+            }),
+          ],
+        });
+      } else {
+        logger = winston.createLogger({
+          levels: customLevelOptions.levels,
+          transports: [
+            new winston.transports.Console({
+              level: 'info',
+              format: winston.format.combine(
+                winston.format.colorize({
+                  all: true,
+                  colors: customLevelOptions.colors,
+                }),
+                winston.format.simple()
+              ),
+            }),
+          ],
+        });
+      }
+
+      const addLogger = (req, res, next) => {
+        req.logger = logger;
+        next();
+    }
+
+    export {
+      logger,
+      addLogger
+  }
+ 
 export default __dirname;

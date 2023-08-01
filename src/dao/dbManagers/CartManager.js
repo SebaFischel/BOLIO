@@ -3,11 +3,12 @@ import fs from "fs";
 import productModel from '../dbManagers/models/ProductModel.js'
 import ticketModel from './models/TicketModel.js';
 import { v4 as uuidv4 } from "uuid";
+import { logger } from '../../utils.js'
 
 
 export default class Carts {
   constructor() {
-    console.log("Working carts with DB");
+   logger.info("Working carts with DB");
     this.path = "src/Files/carts.json";
   }
 
@@ -21,7 +22,7 @@ export default class Carts {
       const result = await cartModel.create(cart);
       return result;
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       throw new Error("Error al guardar el carrito en la base de datos");
     }
   }
@@ -51,7 +52,7 @@ export default class Carts {
       const updatedCart = await cart.save();
       return updatedCart;
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       throw new Error("Error al agregar el producto al carrito");
     }
   }
@@ -81,7 +82,7 @@ export default class Carts {
         return "Product not found in cart";
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       throw new Error("Error al eliminar el producto del carrito");
     }
   }
@@ -96,7 +97,7 @@ export default class Carts {
             const carts = JSON.parse(data);
             resolve(carts);
           } catch (error) {
-            console.error("Error al analizar el contenido JSON:", error);
+            logger.error("Error al analizar el contenido JSON:", error);
             reject(error);
           }
         }
@@ -118,7 +119,7 @@ export default class Carts {
   async purchaseCart(cartId) {
     try {
       let total = 0;
-      console.log("Inicio del método purchaseCart"); 
+      logger.info("Inicio del método purchaseCart"); 
 
       const cart = await cartModel.findById(cartId);
       if (!cart) {
@@ -128,7 +129,7 @@ export default class Carts {
       const unprocessedProducts = [];
 
       for (const productItem of cart.products) {
-        console.log(`Procesando producto: ${productItem.product}`); 
+        logger.info(`Procesando producto: ${productItem.product}`); 
 
         const product = await productModel.findById(productItem.product);
         if (!product) {
@@ -155,7 +156,7 @@ export default class Carts {
         const fecha = new Date().toLocaleString("en-GB", {
           hour12: false,
         });
-        console.log(typeof(fecha))
+        logger.info(typeof(fecha))
         const ticketData = {
           code: uuidv4(),
           purchase_datetime: fecha,
@@ -166,17 +167,17 @@ export default class Carts {
         const ticket = new ticketModel(ticketData);
         await ticket.save();
 
-        console.log("Finalización exitosa de la compra");
+        logger.info("Finalización exitosa de la compra");
         return "Purchase completed successfully";
       }
 
-      console.error("Error durante el proceso de compra");
+      logger.error("Error durante el proceso de compra");
       return {
         error: "Error during the purchase process",
         unprocessedProducts,
       };
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       throw new Error("Error during the purchase process");
     }
   }

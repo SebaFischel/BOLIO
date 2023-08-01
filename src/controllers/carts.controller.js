@@ -1,7 +1,8 @@
 import { Router } from "express";
 import CartManager from '../dao/dbManagers/CartManager.js';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
-// import cartModel from '../dao/dbManagers/models/CartModel.js' 
+// import cartModel from '../dao/dbManagers/models/CartModel.js'
+import { logger } from '../utils.js' 
 
 const router = Router();
 
@@ -43,26 +44,26 @@ const getCarts = async (req, res) => {
       const product = await productModel.getProductById(productId);
       if (!product) {
         PastTests++;
-        console.log("Test 1: Incorrecto. Producto no encontrado");
+        logger.warning("Test 1: Incorrecto. Producto no encontrado");
         return res.status(404).send({ error: "Producto no encontrado" });
       } else {
         PastTests++;
-        console.log("Test 1: Correcto");
+        logger.info("Test 1: Correcto");
       }
   
       const updatedCart = await cartManager.addProductToCart(cartId, productId);
       if (updatedCart) {
         PastTests++;
-        console.log("Test 2: Correcto");
+        logger.info("Test 2: Correcto");
         res.send(updatedCart);
       } else {
-        console.log("Test 2: Incorrecto. Carrito no encontrado");
+        logger.warning("Test 2: Incorrecto. Carrito no encontrado");
         return res.status(404).send({ error: "Carrito no encontrado" });
       }
   
-      console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
+      logger.info(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
     } catch (error) {
-      console.error(error);
+      logger.fatal(error);
       return res.status(500).send({ error: error.message });
     }
   };
@@ -83,7 +84,7 @@ const getCarts = async (req, res) => {
         res.status(200).json(updatedCart);
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
     }
   };
@@ -130,7 +131,7 @@ const getCarts = async (req, res) => {
       const message = await cartManager.purchaseCart(cartId);
       res.status(200).json({ message });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       res.status(500).json({ error: 'Error during the purchase process' });
     }
   };

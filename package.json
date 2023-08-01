@@ -88,7 +88,8 @@
     "unpipe": "^1.0.0",
     "utils-merge": "^1.0.1",
     "uuid": "^9.0.0",
-    "vary": "^1.1.2"
+    "vary": "^1.1.2",
+    "winston": "^3.10.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2"

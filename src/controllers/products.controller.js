@@ -1,5 +1,6 @@
 import { Router } from "express";
 import ProductManager from '../dao/dbManagers/ProductManager.js'
+import { logger } from "../utils.js";
 
 const productManager = new ProductManager('../dao/dbManagers/ProductManager.js')
 
@@ -23,11 +24,11 @@ const postProduct = async (req, res) => {
     if (!stock) missingProperties.push('stock');
     if (!category) missingProperties.push('category');
 
-    console.log(`Test 1: Incorrecto. Faltan las siguientes propiedades: ${missingProperties.join(', ')}`);
+    logger.error(`Test 1: Incorrecto. Faltan las siguientes propiedades: ${missingProperties.join(', ')}`);
     return res.status(400).send({ status: "error", error: `Faltan las siguientes propiedades: ${missingProperties.join(', ')}` });
   } else {
     PastTests++;
-    console.log('Test 1: Correcto');
+    logger.info('Test 1: Correcto');
   }
   try {
     const product = {
@@ -41,15 +42,15 @@ const postProduct = async (req, res) => {
     };
 
     const result = await productManager.save(product);
-    console.log('Test 2: Correcto');
+    logger.info('Test 2: Correcto');
     PastTests++;
     res.send({ status: "success", result });
   } catch (error) {
-    console.log(`Test 2: Incorrecto. Error al guardar el producto: ${error.message}`);
+    logger.error(`Test 2: Incorrecto. Error al guardar el producto: ${error.message}`);
     res.status(500).send({ status: "error", error: `Error al guardar el producto: ${error.message}` });
   }
 
-  console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
+  logger.info(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
 };
 
   const getProducts = async (req, res) => {
@@ -67,8 +68,8 @@ const postProduct = async (req, res) => {
         return res.status(404).send({ error: "Producto no encontrado" });
       }
     } catch (error) {
-      console.error(error);
-      console.error(error.stack);
+      logger.error(error);
+      logger.error(error.stack);
       return res
         .status(500)
         .send({ error: "Error en el servidor", detailedError: error.message });
@@ -81,7 +82,7 @@ const postProduct = async (req, res) => {
       const product = await productManager.deleteProductById(productId);
       res.send({ status: product });
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       return res.status(400).send({ error: "Producto no encontrado" });
     }
   };

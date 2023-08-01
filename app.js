@@ -17,11 +17,15 @@ import nodemailer from 'nodemailer';
 import twilio from 'twilio';
 import dotenv from 'dotenv';
 import  mockingProducts  from './src/routers/mocking.router.js'
+import { addLogger } from './src/utils.js';
+import { logger } from './src/utils.js'
+import logsRouter from './src/routers/logs.router.js'
+
 
 
 
 const app = express();
-const server = app.listen(8080, () => console.log("Listening on PORT 8080"));
+const server = app.listen(8080, () => logger.debug("Listening on PORT 8080"));
 const io = new Server(server);
 
 
@@ -52,12 +56,15 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(addLogger);
 app.use('/api/sessions', sessionsRouter);
 app.use('/', viewsRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/mocking', mockingProducts)
+app.use('/api/logs', logsRouter)
+
 
 const productsOnList = [];
 const messages = [];
@@ -89,12 +96,7 @@ socket.on('authenticated', data => {
 });
 });
 
-// try {
-//   await mongoose.connect('mongodb+srv://fischelsebastian:coderhouse@cluster123.gudtuxt.mongodb.net/ecommerceCH?retryWrites=true&w=majority');
-//   console.log('DB CONNECTED');
-// } catch (error) {
-//   console.log(error);
-// }
+
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',

@@ -3,6 +3,7 @@ import { createHash, isValidPassword } from '../utils.js';
 import { Router } from 'express';
 import __dirname from '../utils.js';
 import { generateToken } from '../utils.js';
+import { logger } from '../utils.js';
 
 const router = Router();
 
@@ -31,7 +32,7 @@ const registerUser = async (req, res) => {
       await userModel.create(newUser);
       res.redirect('/login'); 
     } catch (error) {
-      console.log(error);
+      logger.fatal(error);
       res.status(500).send({ status: 'error', error: 'Internal Server Error' })
     }
   };
@@ -46,35 +47,35 @@ const registerUser = async (req, res) => {
   
       if (!user) {
         PastTests++;
-        console.log("Test 1: Incorrecto. Usuario no encontrado");
+        logger.warning("Test 1: Incorrecto. Usuario no encontrado");
         return res.status(400).json({ status: 'error', error: 'User not found' });
       } else {
         PastTests++;
-        console.log("Test 1: Correcto");
+        logger.info("Test 1: Correcto");
       }
   
       const isValid = await isValidPassword(password, user.password);
   
       if (!isValid) {
         PastTests++;
-        console.log("Test 2: Incorrecto. Contraseña inválida");
+        logger.warning("Test 2: Incorrecto. Contraseña inválida");
         return res.status(400).json({ status: 'error', error: 'Invalid password' });
       } else {
         PastTests++;
-        console.log("Test 2: Correcto");
+        logger.info("Test 2: Correcto");
       }
   
       const role = email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
       const token = generateToken({ email, role });
   
       PastTests++;
-      console.log("Test 3: Correcto");
+      logger.info("Test 3: Correcto");
   
-      console.log(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
+      logger.info(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
   
       return res.json({ status: 'success', token, role});
     } catch (error) {
-      console.log(error);
+      logger.fatal(error);
       return res.status(500).json({ status: 'error', error });
     }
   });
