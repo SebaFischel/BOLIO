@@ -1,25 +1,33 @@
-<div>
-    <p>Bienvenidos</p>
-    <h1>Tu perfil (sin datos sensibles)</h1>
-    <p>{{user.name}}</p>
-    <p>{{user.email}}</p>
-    <p>{{user.age}}</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+</head>
+<body>
+    <div>
+        <p>Bienvenidos</p>
+        <h1>Tu perfil</h1>
+        <p id="userName"></p>
+        <p id="userEmail"></p>
+        <p id="userAge"></p>
+    </div>
 
-<div>
-    {{#each products}}
-    <p>{{this.title}}</p>
-    <p>{{this.description}}</p>
-    <p>{{this.code}}</p>
-    <p>{{this.price}}</p>
-    <p>{{this.status}}</p>
-    <p>{{this.stock}}</p>
-    <p>{{this.category}}</p>
-    <p>{{this.thumbnails}}</p>
+    <div>
+        {{#each products}}
+        <p>{{this.title}}</p>
+        <p>{{this.description}}</p>
+        <p>{{this.code}}</p>
+        <p>{{this.price}}</p>
+        <p>{{this.status}}</p>
+        <p>{{this.stock}}</p>
+        <p>{{this.category}}</p>
+        <p>{{this.thumbnails}}</p>
 
-   <a><button onclick="addToCart('{{this.id}}')">Agregar al carrito</button></a>
+        <a><button onclick="addToCart('{{this.id}}')">Agregar al carrito</button></a>
 
-    {{/each}}
+        {{/each}}
 
     <a href="/cart">
             <button style="background-color: #ffffff; padding: 10px; border: 1px solid #cccccc; border-radius: 50%;">
@@ -40,47 +48,86 @@
     {{#if hasNextPage}}
     <a href="/products?page={{nextPage}}&limit=5"><button>Siguiente</button></a>
     {{/if}}
-        <a href="/api/sessions/logout"><button>Salir</button></a>
+        <a id="logoutButton" href="#">Salir</a>
 
 </div>
+    <script>
+        
+        const getUser = async () => {
+            const data = await fetch("/api/sessions/current");
+            const user = await data.json();
+            return user;
+        };
+        
+        let currentCartId = null;
+        function addToCart(productId) {
 
-<script>
-    let currentCartId = null;
-    function addToCart(productId) {
-
-        if (!currentCartId) {
-            fetch('/api/carts/', {
+            if (!currentCartId) {
+                fetch('/api/carts/', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(response => response.json())
+                .then(cart => {
+                    currentCartId = cart._id;
+                    addProductToCart(productId);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            } else {
+                addProductToCart(productId);
+            }
+        }
+        function addProductToCart(productId) {
+            fetch(`/api/carts/${currentCartId}/product/${productId}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 },
-                body: JSON.stringify({}),
             })
             .then(response => response.json())
-            .then(cart => {
-                currentCartId = cart._id;
-                addProductToCart(productId);
+            .then(updatedCart => {
+                console.log(updatedCart);
             })
             .catch(error => {
                 console.error(error);
             });
-        } else {
-            addProductToCart(productId);
         }
+
+        async function updateUserData() {
+            const user = await getUser();
+            document.getElementById('userName').innerText = user.name;
+            document.getElementById('userEmail').innerText = user.email;
+            document.getElementById('userAge').innerText = user.age;
+        }
+
+        window.addEventListener('load', updateUserData);
+
+        const logoutButton = document.getElementById('logoutButton');
+
+logoutButton.addEventListener('click', async () => {
+  try {
+    const response = await fetch('/api/sessions/logout', {
+      method: 'GET', 
+    });
+
+    if (response.ok) {
+      localStorage.removeItem('token');
+      
+
+      window.location.href = '/login';
+    } else {
+      console.error('Error al cerrar la sesión:', response.statusText);
     }
-    function addProductToCart(productId) {
-        fetch(`/api/carts/${currentCartId}/product/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(updatedCart => {
-            console.log(updatedCart);
-        })
-        .catch(error => {
-            console.error(error);
-        });
-    }
-</script>
+  } catch (error) {
+    console.error('Error al cerrar la sesión:', error);
+  }
+});
+
+    </script>
+</body>
+</html>

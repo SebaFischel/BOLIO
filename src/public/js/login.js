@@ -13,7 +13,23 @@ form.addEventListener('submit', e => {
         }
     }).then(result => {
         if (result.status === 200) {
-            window.location.replace('/products');
+            return result.json(); 
+        } else {
+            throw new Error('Inicio de sesión fallido');
         }
     })
-})
+    .then(data => {
+
+        localStorage.setItem('token', data.token);
+
+
+        localStorage.setItem('userRole', data.role);
+
+        window.location.replace('/products'); 
+    })
+    .catch(error => {
+        console.error('Error al iniciar sesión:', error);
+
+    });
+
+});

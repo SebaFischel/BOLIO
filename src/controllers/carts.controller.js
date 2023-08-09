@@ -1,12 +1,14 @@
 import { Router } from "express";
 import CartManager from '../dao/dbManagers/CartManager.js';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
-// import cartModel from '../dao/dbManagers/models/CartModel.js'
 import { logger } from '../utils.js' 
+import productModel from '../dao/dbManagers/models/ProductModel.js'
+
+
 
 const router = Router();
 
-const productModel = new ProductManager();
+const productManager = new ProductManager();
 const cartManager = new CartManager();
 const carts = [];
 
@@ -30,8 +32,15 @@ const getCarts = async (req, res) => {
     if (!cart) {
       return res.status(404).send({ error: "Cart not found" });
     }
-    res.send(cart);
-  };
+
+    // Calcular el precio total del carrito
+    const cartTotal = cart.products.reduce((total, item) => {
+        const product =  productModel.findById(item.product);
+        return total + (product.price * item.quantity);
+    }, 0);
+
+    res.render('cart', { cart, cartTotal });
+};
 
   const postIntoCart = async (req, res) => {
     try {
@@ -41,7 +50,7 @@ const getCarts = async (req, res) => {
       const cartId = req.params.cid;
       const productId = req.params.pid;
   
-      const product = await productModel.getProductById(productId);
+      const product = await productManager.getProductById(productId);
       if (!product) {
         PastTests++;
         logger.warning("Test 1: Incorrecto. Producto no encontrado");
@@ -136,6 +145,8 @@ const getCarts = async (req, res) => {
     }
   };
 
+
+
   export default router;
 
   export {
@@ -146,5 +157,6 @@ const getCarts = async (req, res) => {
   deleteProductFromCart,
   updateCart,
   updateProductsToCart,
-  purchaseCart
+  purchaseCart,
+
 }

@@ -18,6 +18,9 @@ router.put("/:cid", updateCart)
 
 router.put("/:cid/products/:pid", updateProductsToCart)
 
-router.post("/:cid/purchase", purchaseCart)
+router.post("/:cid/purchase",  purchaseCart)
+
+
+
 
 export default router;

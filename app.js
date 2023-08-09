@@ -39,19 +39,21 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-app.use(session({
-  store: MongoStore.create({
-    mongoUrl: 'mongodb+srv://fischelsebastian:coderhouse@cluster123.gudtuxt.mongodb.net/ecommerceCH?retryWrites=true&w=majority',
-    ttl: 3600,
-    mongoOptions: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }
-  }),
-  secret: 'Coder39760',
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: 'Coder39760', // Reemplaza esto con una clave secreta adecuada para tu aplicación
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: 'mongodb+srv://fischelsebastian:coderhouse@cluster123.gudtuxt.mongodb.net/ecommerceCH?retryWrites=true&w=majority', // Reemplaza esto con la URL de tu base de datos MongoDB
+      ttl: 3600, // Opcional: tiempo de vida de la sesión en segundos (por defecto, 14 días)
+      mongoOptions: {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      },
+    }),
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());

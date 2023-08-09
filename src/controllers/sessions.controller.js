@@ -2,8 +2,9 @@ import userModel from '../dao/dbManagers/models/UsersModel.js';
 import { createHash, isValidPassword } from '../utils.js';
 import { Router } from 'express';
 import __dirname from '../utils.js';
-import { generateToken } from '../utils.js';
+import { generateToken, authToken} from '../utils.js';
 import { logger } from '../utils.js';
+import UserDto from '../dao/DTOs/user.dto.js'
 
 const router = Router();
 
@@ -37,7 +38,8 @@ const registerUser = async (req, res) => {
     }
   };
   
-  const loginUser = router.post('/login', async (req, res) => {
+
+  const loginUser = async (req, res) => {
     try {
       let PastTests = 0;
       const TotalTests = 3;
@@ -50,6 +52,8 @@ const registerUser = async (req, res) => {
         logger.warning("Test 1: Incorrecto. Usuario no encontrado");
         return res.status(400).json({ status: 'error', error: 'User not found' });
       } else {
+        // Aquí es donde debes guardar el usuario en la sesión
+        req.session.user = user;
         PastTests++;
         logger.info("Test 1: Correcto");
       }
@@ -66,6 +70,8 @@ const registerUser = async (req, res) => {
       }
   
       const role = email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
+  
+      // Generar el token
       const token = generateToken({ email, role });
   
       PastTests++;
@@ -73,36 +79,67 @@ const registerUser = async (req, res) => {
   
       logger.info(`Tests Pasados: ${PastTests} / Total Tests: ${TotalTests}`);
   
-      return res.json({ status: 'success', token, role});
+      return res.json({ status: 'success', token, role });
     } catch (error) {
       logger.fatal(error);
       return res.status(500).json({ status: 'error', error });
     }
-  });
+  };
   
-  
-  const removeTokenFromStorage = () => {
-    localStorage.removeItem('access_token');
-};
+  const loginCallback = async (req, res) => {
+    console.log('Datos del usuario autenticado:', req.user);
+    
+    req.session.user = req.user;
+    res.redirect('/products');
+  };
 
+  
+  
+  const removeTokenFromSession = (req) => {
+    delete req.session.token;
+  };
 
   const logoutUser = (req, res) => {
-    req.session.destroy(err => {
-        if(err) return res.status(500).send({ status: 'error', error: 'Logout fail' });
-        removeTokenFromStorage();
-        res.redirect('/login')
-    })
-};
+    req.logout((err) => {
+      if (err) {
+        console.error('Error al cerrar la sesión:', err);
+        return res.status(500).send({ status: 'error', error: 'Logout fail' });
+      }
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Error al destruir la sesión:', err);
+          return res.status(500).send({ status: 'error', error: 'Logout fail' });
+        }
+  
+        res.redirect('/login'); 
+      });
+    });
+  };
+  
 
 const loginGithub = async (req, res) => {
     res.send({ status: "success", message: "User registered" })
     res.redirect('/products')
   };
-
-  const loginCallback = async (req, res) => {
-    req.session.user = req.user;
-    res.redirect('/products')
+  
+  const authenticateUser = (req, res, next) => {
+    if (req.session && req.session.user) {
+      // Si el usuario está autenticado, coloca los datos del usuario en req.user
+      req.user = req.session.user;
+      return next();
+    }
+    res.status(401).json({ status: 'error', error: 'No autorizado' });
   };
+
+const getCurrentUser = (req, res) => {
+  try {
+    const userDto = new UserDto(req.user);
+    res.send(userDto);
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+  }
+};
+  
 
   export default router;
 
@@ -111,5 +148,8 @@ const loginGithub = async (req, res) => {
     loginCallback,
     loginGithub,
     loginUser,
-    logoutUser
+    logoutUser,
+    getCurrentUser,
+    authenticateUser,
+    removeTokenFromSession
   }

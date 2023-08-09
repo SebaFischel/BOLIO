@@ -7,8 +7,17 @@ const userSchema = new mongoose.Schema({
     last_name: String,
     email: String,
     age: Number,
-    password: String
+    password: String,
+    cart: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "carts",
+        required: true
+    },
 });
+
+userSchema.pre("find", function(){
+    this.populate("cart");
+})
 
 const userModel = mongoose.model(userCollection, userSchema);
 

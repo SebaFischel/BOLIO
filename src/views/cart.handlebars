@@ -1,85 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carrito de Compras</title>
-
-</head>
-
-<body>
-    <h1>Tu Carrito de Compras</h1>
-
-    <div id="cartItemsContainer">
-
+<div class="container mt-5">
+    <div class="mb-3 p-4 bg-primary bg-gradient text-dark bg-opacity-25 rounded-5">
+        <h1 class="display-4">Bienvenido {{user.first_name}} {{user.last_name}}</h1>
+        <p><strong>Email:</strong> {{user.email}}</p>
+        {{#if user.age}}
+            <p><strong>Edad:</strong> {{user.age}}</p>
+        {{/if}}
+        <p><strong>Rol:</strong> {{user.role}}</p>
+        <a href="/api/sessions/logout"><button class="btn btn-danger">Logout</button></a>
     </div>
-
-    <div id="cartTotal">
-
-    </div>
-
-    <button id="checkoutButton">Realizar compra</button>
-
-
-
-    <button onclick="goToProducts()">Volver a productos</button>
-
-</body>
-
-</html>
-
+    <h2 class="display-5">Carrito ID: {{cid}}</h2>
+    <a href="/products" class="btn btn-primary my-3">Ir al listado de productos</a>
+    <table class="table">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Unit price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+                {{#if this.status}}
+                    <tr class="product-row">
+                        <td>{{this._id}}</td>
+                        <td>{{this.title}}</td>
+                        <td>${{this.price}}</td>
+                        <td>x{{this.quantity}}</td>
+                        <td>${{this.subtotal}}</td>
+                    </tr>
+                {{/if}}
+            {{/each}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="h3">Total</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="h3">${{total}}</td>
+            </tr>
+        </tfoot>
+    </table>
+    <button id="purchase-btn" class="btn btn-success">Iniciar compra</button>
+</div>
 <script>
+    const purchaseBtn = document.getElementById("purchase-btn");
 
-    function loadCartView() {
-        fetch("/api/carts/:cid")
-            .then(response => response.json())
-            .then(cart => {
-  
-                const cartItemsContainer = document.getElementById("cartItemsContainer");
-                cartItemsContainer.innerHTML = ""; 
-
-
-                cart.products.forEach(item => {
-                    const productElement = document.createElement("div");
-                    productElement.innerHTML = `
-                        <p>${item.product.title}</p>
-                        <p>Precio: ${item.product.price.toFixed(2)}</p>
-                        <p>Cantidad: ${item.quantity}</p>
-                    `;
-                    cartItemsContainer.appendChild(productElement);
-                });
-
-
-                const cartTotalElement = document.getElementById("cartTotal");
-                cartTotalElement.textContent = `Precio Total: ${getCartTotal(cart).toFixed(2)}`;
-
-
-                const checkoutButton = document.getElementById("checkoutButton");
-                checkoutButton.addEventListener("click", () => {
-
-                });
+    purchaseBtn?.addEventListener("click", async e => {
+        const user = await getUser();
+        const cid = user.cart;
+        const data = await fetch(`/api/carts/${cid}/purchase`);
+        const resp = await data.json();
+        if(Array.isArray(resp.data)){
+            Swal.fire({
+                position: "center",
+                showConfirmButton: true,
+                title: "Compra no realizada",
+                text: "No hay stock suficiente de algunos productos. Se modificarán las cantidades de los mismos",
+                icon: "error"
             })
-            .catch(error => {
-                console.error(error);
+            .then(result => {
+                if(result.isConfirmed) {
+                    window.location.replace(`/carts/${cid}`);
+                }
+            })
+        } else {
+            Swal.fire({
+                position: "center",
+                showConfirmButton: true,
+                title: "La compra se ha realizado con éxito",
+                text: "Se envió un mail de confirmación de la compra",
+                icon: "success"
+            })
+            .then(result => {
+                if(result.isConfirmed) {
+                    window.location.replace(`/carts/${cid}`);
+                }
+            })
+        }
+    })
 
-            });
-    }
-
-
-    function getCartTotal(cart) {
-        let total = 0;
-        cart.products.forEach(item => {
-            total += item.product.price * item.quantity;
-        });
-        return total;
-    }
-
-
-    document.addEventListener("DOMContentLoaded", loadCartView);
-
-    function goToProducts() {
-
-        window.location.href = "/products";
+    const getUser = async () => {
+        const data = await fetch("/api/sessions/current");
+        const user = await data.json();
+        return user.data;
     }
 </script>
+

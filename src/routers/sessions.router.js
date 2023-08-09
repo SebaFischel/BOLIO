@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { registerUser, loginUser, logoutUser, loginGithub, loginCallback } from '../controllers/sessions.controller.js'
+import { registerUser, loginUser, logoutUser, loginGithub, loginCallback, authenticateUser, getCurrentUser } from '../controllers/sessions.controller.js'
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.post('/register', registerUser)
 
 router.post('/login', loginUser)
 
-
+router.get('/current',authenticateUser, getCurrentUser)
 
 router.get('/logout', logoutUser)
 
