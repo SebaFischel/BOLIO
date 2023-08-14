@@ -8,7 +8,6 @@ const router = Router();
 
 router.post("/", postProduct)
 
-
 router.get("/", getProducts)
 
 router.get("/:pid", getPid)

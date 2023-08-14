@@ -22,15 +22,15 @@
         </thead>
         <tbody>
             {{#each products}}
-                {{#if this.status}}
+
                     <tr class="product-row">
                         <td>{{this._id}}</td>
-                        <td>{{this.title}}</td>
-                        <td>${{this.price}}</td>
+
+
                         <td>x{{this.quantity}}</td>
-                        <td>${{this.subtotal}}</td>
+
                     </tr>
-                {{/if}}
+
             {{/each}}
         </tbody>
         <tfoot>
@@ -39,7 +39,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td class="h3">${{total}}</td>
+
             </tr>
         </tfoot>
     </table>

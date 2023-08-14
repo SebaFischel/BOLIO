@@ -1,0 +1,193 @@
+paths:
+  /api/products:
+    get:
+      summary: Obtiene todos los productos
+      tags:
+        - Productos
+      responses:
+        "200":
+          description: Los productos fueron obtenidos satisfactoriamente de la BDD
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/products'
+        "500":
+          description: Error interno del servidor, usualmente generado por una query defectuosa o fallo en la conexión a la BDD
+
+    post:
+      summary: Se utiliza para agregar un nuevo producto
+      tags:
+        - Productos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Nombre del producto.
+                  example: Botella de aluminio
+                description:
+                  type: string
+                  description: Descripción breve del producto.
+                  example: Botella de aluminio resistente a golpes
+                code:
+                  type: string
+                  description: Código del producto.
+                  example: 44fg56s
+                price:
+                  type: number
+                  description: Precio del producto.
+                  example: 150
+                status:
+                  type: string
+                  description: Estado del producto.
+                  example: Disponible
+                stock:
+                  type: number
+                  description: Stock del producto.
+                  example: 40
+                category:
+                  type: string
+                  description: Categoría del producto.
+                  example: Utensilios
+      responses:
+        "200":
+          description: El producto se guardó correctamente en la base de datos.
+        "400":
+          description: Faltan algunas propiedades del producto.
+        "500":
+          description: Error al guardar el producto en la base de datos
+
+  /api/products/{pid}:
+    get:
+      summary: Obtiene un solo producto a partir de su id
+      tags:
+        - Productos
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: El ID del producto
+          schema:
+            type: string
+      responses:
+        "200":
+          description: El producto fue obtenido satisfactoriamente de la BDD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/products'
+        "404":
+          description: Producto no encontrado    
+        "500":
+          description: Error interno del servidor, usualmente generado por una query defectuosa o fallo en la conexión a la BDD
+
+    delete:
+      summary: Elimina un producto por su id
+      tags:
+        - Productos
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: El ID del producto
+          schema:
+            type: string
+      responses:
+        "200":
+          description: El producto fue eliminado satisfactoriamente de la BDD
+        "404":
+          description: Producto no encontrado  
+        "500":
+          description: Error interno del servidor, usualmente generado por una query defectuosa o fallo en la conexión a la BDD
+
+    put:
+      summary: Actualiza un producto por su UID
+      tags:
+        - Productos
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: El ID del producto
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/products'
+      responses:
+        "200":
+          description: El producto fue actualizado satisfactoriamente en la BDD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/products'
+        "500":
+          description: Error interno del servidor, usualmente generado por una query defectuosa o fallo en la conexión a la BDD
+
+components:
+  schemas:
+    products:
+      type: object
+      properties:
+        _id:
+          type: objectId
+          description: ID autogenerado por MongoDB.
+        title:
+          type: string
+          description: Nombre del producto.
+        description:
+          type: string
+          description: Descripción breve del producto.
+        code:
+          type: string
+          description: Código del producto.
+        price:
+          type: number
+          description: Precio del producto.
+        status:
+          type: string
+          description: Estado del producto.
+        stock:
+          type: number
+          description: Stock del producto.
+        category:
+          type: string
+          description: Categoría del producto.
+
+requestBodies:
+  updateProduct:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Nombre del producto.
+        description:
+          type: string
+          description: Descripción breve del producto.
+        code:
+          type: string
+          description: Código del producto.
+        price:
+          type: number
+          description: Precio del producto.
+        status:
+          type: string
+          description: Estado del producto.
+        stock:
+          type: number
+          description: Stock del producto.
+        category:
+          type: string
+          description: Categoría del producto.
+
+
+

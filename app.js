@@ -20,6 +20,8 @@ import  mockingProducts  from './src/routers/mocking.router.js'
 import { addLogger } from './src/utils.js';
 import { logger } from './src/utils.js'
 import logsRouter from './src/routers/logs.router.js'
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 
 
@@ -27,6 +29,20 @@ import logsRouter from './src/routers/logs.router.js'
 const app = express();
 const server = app.listen(8080, () => logger.debug("Listening on PORT 8080"));
 const io = new Server(server);
+
+const swaggerOptions = {
+  definition: {
+      openapi: '3.0.1',
+      info: {
+          title: 'Documentación del proyecto de e-commerce CoderHouse ',
+          description: 'API pensada para un e-commerce'
+      }
+  },
+  apis: [`${__dirname}/docs/**/*.yaml`]
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 
 initializePassport();

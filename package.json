@@ -84,6 +84,8 @@
     "socket.io": "^4.7.0",
     "src": "^1.0.0",
     "statuses": "^2.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "toidentifier": "^1.0.1",
     "twilio": "^4.14.0",
     "type-is": "^1.6.18",

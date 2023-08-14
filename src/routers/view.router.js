@@ -27,7 +27,7 @@ router.get('/login', publicAccess, loginView)
 
 // router.get('/productsPrivate', privateAccess, productsPrivate)
 
-router.get('/cart', privateAccess, authToken , viewCart)
+router.get('/cart', privateAccess, viewCart)
 
 
 

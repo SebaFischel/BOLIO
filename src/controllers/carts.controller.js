@@ -32,14 +32,7 @@ const getCarts = async (req, res) => {
     if (!cart) {
       return res.status(404).send({ error: "Cart not found" });
     }
-
-    // Calcular el precio total del carrito
-    const cartTotal = cart.products.reduce((total, item) => {
-        const product =  productModel.findById(item.product);
-        return total + (product.price * item.quantity);
-    }, 0);
-
-    res.render('cart', { cart, cartTotal });
+  res.send (cart);
 };
 
   const postIntoCart = async (req, res) => {

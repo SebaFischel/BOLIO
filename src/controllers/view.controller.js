@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
 import productModel from '../dao/dbManagers/models/ProductModel.js';
+import CartManager from '../dao/dbManagers/CartManager.js'
 
-
+const cartManager = new CartManager();
 const router = Router();
 const productManager = new ProductManager();
 
@@ -50,10 +51,28 @@ const index = (req, res) => {
      });
    };
 
-   const viewCart = (req, res) => {
-    
-    res.render('cart');
-  };
+   const  viewCart = async (req, res) => {
+    try {
+      const id = req.params.id
+      const cart = await cartManager.getById(id)
+      console.log(id)
+      const products = cart.products.map(prod => {
+        return {
+            _id: prod.product._id,
+             quantity: prod.quantity
+        } 
+      }) 
+      res.render('cart' ,
+      {
+        title: "Carrito De Compras",
+        cid,
+        products
+      });
+    } catch (err) {
+      console.log(err)
+        }
+
+    }
 
   export default router;
 

@@ -8,16 +8,16 @@ const userSchema = new mongoose.Schema({
     email: String,
     age: Number,
     password: String,
-    cart: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "carts",
-        required: true
-    },
+     cart: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "carts",
+         required: true
+     },
 });
 
-userSchema.pre("find", function(){
-    this.populate("cart");
-})
+ userSchema.pre("find", function(){
+     this.populate("cart");
+ })
 
 const userModel = mongoose.model(userCollection, userSchema);
 
