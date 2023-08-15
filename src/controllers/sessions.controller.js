@@ -52,7 +52,7 @@ const registerUser = async (req, res) => {
         logger.warning("Test 1: Incorrecto. Usuario no encontrado");
         return res.status(400).json({ status: 'error', error: 'User not found' });
       } else {
-        // Aquí es donde debes guardar el usuario en la sesión
+
         req.session.user = user;
         PastTests++;
         logger.info("Test 1: Correcto");
@@ -71,7 +71,6 @@ const registerUser = async (req, res) => {
   
       const role = email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
   
-      // Generar el token
       const token = generateToken({ email, role });
   
       PastTests++;
@@ -124,7 +123,7 @@ const loginGithub = async (req, res) => {
   
   const authenticateUser = (req, res, next) => {
     if (req.session && req.session.user) {
-      // Si el usuario está autenticado, coloca los datos del usuario en req.user
+
       req.user = req.session.user;
       return next();
     }

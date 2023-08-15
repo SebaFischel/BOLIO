@@ -2,6 +2,7 @@ import { Router } from "express";
 import CartManager from '../dao/dbManagers/CartManager.js';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
 import { logger } from '../utils.js' 
+
 import productModel from '../dao/dbManagers/models/ProductModel.js'
 
 
@@ -18,7 +19,7 @@ const getCarts = async (req, res) => {
   };
 
   const postCart = async (req, res) => {
-    //const productData = req.body;
+
     const cart = {
       products: [],
     };
