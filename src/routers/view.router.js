@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { index, realTimeProducts, products, registerView, loginView, productsPrivate, viewCart } from '../controllers/view.controller.js';
-// import { authToken } from '../utils.js';
+ import { authToken } from '../utils.js';
 
 const router = Router();
 
@@ -18,7 +18,7 @@ router.get('/chat', index)
 
 router.get('/realTimeProducts', realTimeProducts)
 
-router.get('/products', privateAccess , products)
+router.get('/products', privateAccess ,products)
 
 
 router.get('/register', publicAccess,registerView)

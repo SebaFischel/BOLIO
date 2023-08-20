@@ -19,8 +19,14 @@ export default class Carts {
 
   async save(cart) {
     try {
-      const result = await cartModel.create(cart);
-      return result;
+      // Genera un nuevo ObjectId para el carrito
+      const newCart = new cartModel(cart);
+  
+      // Guarda el carrito en la base de datos
+      await newCart.save();
+  
+      // Devuelve el carrito con el _id generado
+      return newCart;
     } catch (error) {
       logger.error(error);
       throw new Error("Error al guardar el carrito en la base de datos");

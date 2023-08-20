@@ -15,23 +15,37 @@ const PRIVATE_KEY = 'coder39760';
 const ENVIRONMENT = process.env.NODE_ENV;
 
 export const generateToken = (user) => {
-    const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: '30m' });
-    return token;
+  const token = jwt.sign({ userId: user._id }, PRIVATE_KEY, { expiresIn: '10y' });
+  return token;
 };
 
 export const authToken = (req, res, next) => {
-    const authToken = req.headers.authorization;
-    
-    if(!authToken) return res.status(401).send({error: 'Not authenticated'});
+  const authToken = req.headers.authorization;
 
-    const token = authToken.split(' ')[1];
+  if (!authToken) {
+    console.log('No authToken provided');
+    return res.status(401).send({ error: 'Not authenticated' });
+  }
 
-    jwt.verify(token, PRIVATE_KEY, (error, credentials) => {
-        if (error) return res.status(403).send({error: 'Not authorized'});
-        req.user = credentials.user;
-        next();
-    })
-}
+  const token = authToken.split(' ')[1];
+
+  jwt.verify(token, PRIVATE_KEY, (error, decoded) => {
+    if (error) {
+      console.log('Token verification error:', error);
+      return res.status(403).json({ error: 'Token verification failed' });
+    }
+  
+    // Verifica si el campo userId existe en el objeto decoded
+    if (decoded && decoded.userId) { // Asegúrate de que decoded no sea nulo
+      req.userId = decoded.userId;
+      next();
+    } else {
+      console.log('Token JWT no contiene el campo userId del usuario');
+      return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
+    }
+  });
+
+};
 
 export const isValidPassword = async (password, hash) => {
     return bcrypt.compareSync(password, hash);

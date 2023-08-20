@@ -2,10 +2,13 @@ import { Router } from "express";
 import CartManager from '../dao/dbManagers/CartManager.js';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
 import { logger } from '../utils.js' 
+import jwt from 'jsonwebtoken';
+import cartModel from "../dao/dbManagers/models/CartModel.js";
+import userModel from "../dao/dbManagers/models/UsersModel.js";
 
 import productModel from '../dao/dbManagers/models/ProductModel.js'
 
-
+const PRIVATE_KEY = 'coder39760';
 
 const router = Router();
 
@@ -19,14 +22,58 @@ const getCarts = async (req, res) => {
   };
 
   const postCart = async (req, res) => {
-
-    const cart = {
-      products: [],
-    };
-    const result = await cartManager.save(cart);
-    res.send(result);
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+  
+      // Verifica el token y obtén el userId
+      jwt.verify(token, PRIVATE_KEY, (error, decoded) => {
+        if (error) {
+          console.log('Token verification error:', error);
+          return res.status(403).json({ error: 'Token verification failed' });
+        }
+  
+        // Verifica si el campo userId existe en el objeto decoded
+        if (decoded && decoded.userId) { // Asegúrate de que decoded no sea nulo
+          const userId = decoded.userId;
+  
+          // Busca al usuario en la base de datos por su _id
+          userModel.findById(userId)
+            .then(async (user) => {
+              if (!user) {
+                // Si el usuario no existe, crea un nuevo usuario
+                user = await userModel.create({ _id: userId, cart: [] });
+                console.log('Nuevo Usuario Creado:', user);
+              }
+  
+              // Aquí puedes continuar con la lógica para crear y asociar el carrito al usuario
+              const cart = {
+                products: [],
+              };
+  
+              const newCart = await cartModel.create(cart);
+              console.log('Nuevo Carrito Creado:', newCart);
+  
+              user.cart.push(newCart._id);
+              await user.save();
+              console.log('Usuario Actualizado con Nuevo Carrito:', user);
+  
+              res.send(newCart);
+            })
+            .catch((error) => {
+              console.error(error);
+              res.status(500).send('Error al buscar o crear el usuario');
+            });
+        } else {
+          console.log('Token JWT no contiene el campo userId del usuario');
+          return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(401).send('Token JWT inválido o expirado');
+    }
   };
-
+  
   const getId = async (req, res) => {
     const cartId = req.params.id;
     const cart = await cartManager.getById(cartId);

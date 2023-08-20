@@ -9,9 +9,14 @@ const userSchema = new mongoose.Schema({
     age: Number,
     password: String,
      cart: {
-         type: mongoose.Schema.Types.ObjectId,
-         ref: "carts",
-         required: true
+        type: [
+            {
+                cart: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'carts'
+                }
+            }
+        ],
      },
 });
 

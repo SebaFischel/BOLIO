@@ -71,7 +71,7 @@ const registerUser = async (req, res) => {
   
       const role = email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user';
   
-      const token = generateToken({ email, role });
+      const token = generateToken({ email, _id: user._id ,role });
   
       PastTests++;
       logger.info("Test 3: Correcto");
