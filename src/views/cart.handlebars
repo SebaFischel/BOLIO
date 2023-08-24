@@ -1,91 +1,76 @@
-{{!-- <div class="container mt-5">
-    <div class="mb-3 p-4 bg-primary bg-gradient text-dark bg-opacity-25 rounded-5">
-        <h1 class="display-4">Bienvenido {{user.first_name}} {{user.last_name}}</h1>
-        <p><strong>Email:</strong> {{user.email}}</p>
-        {{#if user.age}}
-            <p><strong>Edad:</strong> {{user.age}}</p>
-        {{/if}}
-        <p><strong>Rol:</strong> {{user.role}}</p>
-        <a href="/api/sessions/logout"><button class="btn btn-danger">Logout</button></a>
-    </div>
-    <h2 class="display-5">Carrito ID: {{cid}}</h2>
-    <a href="/products" class="btn btn-primary my-3">Ir al listado de productos</a>
-    <table class="table">
-        <thead class="table-primary">
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Unit price</th>
-                <th>Quantity</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each products}}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carrito de Usuario</title>
+</head>
+<body>
+    <h1>Carrito de {{user.first_name}} {{user.last_name}}</h1>
 
-                    <tr class="product-row">
-                        <td>{{this._id}}</td>
-
-
-                        <td>x{{this.quantity}}</td>
-
-                    </tr>
-
+    {{#each userCarts}}
+    <div class="cart">
+        <h2>Carrito ID: {{this._id}}</h2>
+        <ul>
+            {{#each this.products}}
+            <li>
+                <h3>Producto: {{this.product.title}}</h3>
+                <p>Descripción: {{this.product.description}}</p>
+                <p>Precio Unitario: ${{this.product.price}}</p>
+                <p>Cantidad: {{this.quantity}}</p>
+                <p>Precio Total: ${{this.totalPrice}}</p>
+            </li>
             {{/each}}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td class="h3">Total</td>
-                <td></td>
-                <td></td>
-                <td></td>
+        </ul>
+        <p>Total del Carrito: ${{this.totalPrice}}</p> 
+        <button class="buy-button" data-cartid="{{this._id}}">Comprar Carrito</button>
+    </div>
+    {{/each}}
 
-            </tr>
-        </tfoot>
-    </table>
-    <button id="purchase-btn" class="btn btn-success">Iniciar compra</button>
-</div>
-<script>
-    const purchaseBtn = document.getElementById("purchase-btn");
+    <a href="/products">Volver a la página principal</a>
 
-    purchaseBtn?.addEventListener("click", async e => {
-        const user = await getUser();
-        const cid = user.cart;
-        const data = await fetch(`/api/carts/${cid}/purchase`);
-        const resp = await data.json();
-        if(Array.isArray(resp.data)){
-            Swal.fire({
-                position: "center",
-                showConfirmButton: true,
-                title: "Compra no realizada",
-                text: "No hay stock suficiente de algunos productos. Se modificarán las cantidades de los mismos",
-                icon: "error"
-            })
-            .then(result => {
-                if(result.isConfirmed) {
-                    window.location.replace(`/carts/${cid}`);
-                }
-            })
-        } else {
-            Swal.fire({
-                position: "center",
-                showConfirmButton: true,
-                title: "La compra se ha realizado con éxito",
-                text: "Se envió un mail de confirmación de la compra",
-                icon: "success"
-            })
-            .then(result => {
-                if(result.isConfirmed) {
-                    window.location.replace(`/carts/${cid}`);
-                }
-            })
-        }
-    })
+    <script>
+        
+        const buyButtons = document.querySelectorAll('.buy-button');
 
-    const getUser = async () => {
-        const data = await fetch("/api/sessions/current");
-        const user = await data.json();
-        return user.data;
-    }
-</script> --}}
+
+        buyButtons.forEach(button => {
+            button.addEventListener('click', function() {
+
+                const cartId = this.getAttribute('data-cartid');
+
+                fetch(`/api/carts/${cartId}/purchase`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => response.json()) 
+                .then(data => {
+
+                    if (data.message === 'Purchase completed successfully') {
+                        alert('Compra realizada con éxito');
+
+                        window.location.href = '/products'; 
+                    } else {
+                        alert('Error al realizar la compra');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al comprar el carrito:', error);
+                    alert('Error al realizar la compra');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
 

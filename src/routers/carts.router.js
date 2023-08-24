@@ -5,11 +5,11 @@ import { authToken } from "../utils.js";
 const router = Router();
 
 
-router.get("/", authToken, getCarts)
+router.get("/", getCarts)
 
 router.post("/", authenticateUser, authToken, postCart)
 
-router.get("/:id", authToken, getId)
+router.get("/:id", getId)
 
 router.post("/:cid/product/:pid", authToken, postIntoCart)
 

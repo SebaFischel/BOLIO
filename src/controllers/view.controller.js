@@ -51,28 +51,35 @@ const index = (req, res) => {
      });
    };
 
-   const  viewCart = async (req, res) => {
+   const viewCart = async (req, res) => {
     try {
-      const id = req.params.id
-      const cart = await cartManager.getById(id)
-      console.log(id)
-      const products = cart.products.map(prod => {
-        return {
-            _id: prod.product._id,
-             quantity: prod.quantity
-        } 
-      }) 
-      res.render('cart' ,
-      {
-        title: "Carrito De Compras",
-        cid,
-        products
-      });
-    } catch (err) {
-      console.log(err)
-        }
+        const userData = req.session.user;
+        const userCartIds = userData.cart;
 
+        const userCarts = await Promise.all(userCartIds.map(async (cartId) => {
+            const cart = await cartManager.getById(cartId);
+
+            // Verifica si cart.products está definido antes de operar en él
+            if (cart && cart.products) { // Agregamos una verificación para 'cart'
+                cart.products.forEach((product) => {
+                    product.totalPrice = product.product.price * product.quantity;
+                });
+
+                cart.totalPrice = cart.products.reduce((total, product) => total + product.totalPrice, 0);
+            }
+
+            return cart;
+        }));
+
+        console.log('User Carts:', userCarts);
+
+        res.render('cart', { user: userData, userCarts });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
     }
+};
+
 
   export default router;
 
