@@ -159,24 +159,26 @@ const postCart = async (req, res) => {
 
   const deleteProductFromCart = async (req, res) => {
     try {
-      const cartId = req.params.cid;
-      const productId = req.params.pid;
-  
-      const updatedCart = await cartManager.deleteProductCart(cartId, productId);
-      if (typeof updatedCart === "string") {
-        if (updatedCart === "Cart not found") {
-          res.status(404).json({ error: 'El carrito no existe' });
-        } else if (updatedCart === "Product not found in cart") {
-          res.status(404).json({ error: 'El producto no existe en el carrito' });
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+
+        // Llama a una función en cartManager para eliminar el producto del carrito
+        const updatedCart = await cartManager.deleteProductFromCart(cartId, productId);
+
+        if (typeof updatedCart === "string") {
+            if (updatedCart === "Cart not found") {
+                res.status(404).json({ error: 'El carrito no existe' });
+            } else if (updatedCart === "Product not found in cart") {
+                res.status(404).json({ error: 'El producto no existe en el carrito' });
+            }
+        } else {
+            res.status(200).json(updatedCart);
         }
-      } else {
-        res.status(200).json(updatedCart);
-      }
     } catch (error) {
-      logger.error(error);
-      res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
+        logger.error(error);
+        res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
     }
-  };
+};
   
 
   const updateCart = (req, res) => {

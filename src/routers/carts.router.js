@@ -13,7 +13,7 @@ router.get("/:id", getId)
 
 router.post("/:cid/product/:pid", authToken, postIntoCart)
 
-router.delete("/:cid/product/:pid",authToken, deleteProductFromCart)
+router.delete("/:cid/product/:pid", deleteProductFromCart)
 
 router.put("/:cid", authToken, updateCart)
 

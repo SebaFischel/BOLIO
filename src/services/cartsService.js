@@ -20,8 +20,8 @@ addProductToCart = async (cartId, productId) => {
     return result;
 }
 
-deleteProductCart = async (id) => {
-    const result = CartsRepository.deleteProductCart(id);
+deleteProductFromCart = async (cartId, productId) => {
+    const result = CartsRepository.deleteProductFromCart(cartId, productId);
     return result;
 }
 

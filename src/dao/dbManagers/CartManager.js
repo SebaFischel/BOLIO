@@ -133,5 +133,27 @@ export default class Carts {
     }
 }
 
+async deleteProductFromCart(cartId, productId) {
+  try {
+      const cart = await cartModel.findById(cartId);
+      if (!cart) {
+          return "Cart not found";
+      }
+
+      const productIndex = cart.products.findIndex((productItem) => productItem.product.toString() === productId);
+      if (productIndex === -1) {
+          return "Product not found in cart";
+      }
+
+      cart.products.splice(productIndex, 1); 
+      await cart.save();
+
+      return cart;
+  } catch (error) {
+      logger.error(error);
+      throw new Error("Error al eliminar el producto del carrito");
+  }
+}
+
 
 }

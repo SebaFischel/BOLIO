@@ -25,8 +25,8 @@ export default class CartsRepository {
         return result;
     }
 
-    deleteProductCart = async (id) => {
-        const result = await this.dao.deleteProductCart(id);
+    deleteProductFromCart = async (cartId, productId) => {
+        const result = await this.dao.deleteProductFromCart(cartId, productId);
         return result;
     }
 

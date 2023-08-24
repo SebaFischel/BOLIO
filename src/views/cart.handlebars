@@ -11,12 +11,13 @@
         <h2>Carrito ID: {{this._id}}</h2>
         <ul>
             {{#each this.products}}
-            <li>
+            <li id="{{this.product._id}}">
                 <h3>Producto: {{this.product.title}}</h3>
                 <p>Descripción: {{this.product.description}}</p>
                 <p>Precio Unitario: ${{this.product.price}}</p>
                 <p>Cantidad: {{this.quantity}}</p>
                 <p>Precio Total: ${{this.totalPrice}}</p>
+                <button class="delete-button" data-cartid="{{../_id}}" data-productid="{{this.product._id}}">Eliminar Producto</button>
             </li>
             {{/each}}
         </ul>
@@ -27,16 +28,51 @@
 
     <a href="/products">Volver a la página principal</a>
 
-    <script>
-        
-        const buyButtons = document.querySelectorAll('.buy-button');
+    <!-- Elemento para mostrar mensajes de éxito -->
+    <div id="success-message" style="display: none; color: green;">
+        Producto eliminado correctamente.
+    </div>
 
+    <script>
+        const buyButtons = document.querySelectorAll('.buy-button');
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        const successMessage = document.getElementById('success-message');
+
+        // Función para eliminar un producto del carrito
+        function deleteProductFromCart(cartId, productId) {
+            fetch(`/api/carts/${cartId}/product/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Ocultar el mensaje de éxito si estaba visible
+                    successMessage.style.display = 'none';
+
+                    // Eliminar el elemento del producto del DOM
+                    const productElement = document.getElementById(productId);
+                    if (productElement) {
+                        productElement.remove();
+                    }
+
+                    // Mostrar el mensaje de éxito
+                    successMessage.style.display = 'block';
+                } else {
+                    throw new Error('Error en la solicitud');
+                }
+            })
+            .catch(error => {
+                console.error('Error en la solicitud:', error);
+                alert('Error en la solicitud');
+            });
+        }
 
         buyButtons.forEach(button => {
             button.addEventListener('click', function() {
-
                 const cartId = this.getAttribute('data-cartid');
-
                 fetch(`/api/carts/${cartId}/purchase`, {
                     method: 'POST',
                     headers: {
@@ -44,26 +80,40 @@
                         'Content-Type': 'application/json'
                     },
                 })
-                .then(response => response.json()) 
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Error en la solicitud');
+                    }
+                })
                 .then(data => {
-
                     if (data.message === 'Purchase completed successfully') {
                         alert('Compra realizada con éxito');
-
-                        window.location.href = '/products'; 
+                        window.location.href = '/products';
                     } else {
                         alert('Error al realizar la compra');
                     }
                 })
                 .catch(error => {
-                    console.error('Error al comprar el carrito:', error);
-                    alert('Error al realizar la compra');
+                    console.error('Error en la solicitud:', error);
+                    alert('Error en la solicitud');
                 });
+            });
+        });
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const cartId = this.getAttribute('data-cartid');
+                const productId = this.getAttribute('data-productid');
+                deleteProductFromCart(cartId, productId);
             });
         });
     </script>
 </body>
 </html>
+
+
 
 
 
