@@ -1,3 +1,4 @@
+
 const form = document.getElementById('loginForm');
 
         form.addEventListener('submit', e => {
@@ -31,7 +32,7 @@ const form = document.getElementById('loginForm');
                     window.location.replace('/products');
                 })
                 .catch(error => {
-                    console.error('Error al iniciar sesión:', error);
+                    logger.error('Error al iniciar sesión:', error);
 
                     const errorMessage = document.getElementById('errorMessage');
                     errorMessage.textContent = 'Inicio de sesión fallido. Verifica tus credenciales.';

@@ -4,8 +4,6 @@ import { authToken } from "../utils.js";
 
 const router = Router();
 
-
-
 router.post("/", postProduct)
 
 router.get("/", authToken, getProducts)

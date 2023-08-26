@@ -1,7 +1,7 @@
-import fs from 'fs/promises'; // Importar el módulo fs para trabajar con archivos.
+import fs from 'fs/promises'; 
 import { logger } from '../../utils.js';
 
-const PRODUCTS_FILE_PATH = 'src/Files/Products.json'; // Ruta del archivo JSON de productos.
+const PRODUCTS_FILE_PATH = 'src/Files/Products.json';
 
 export default class Products {
   constructor() {
@@ -88,7 +88,6 @@ export default class Products {
 
   async removeProductFromCart(cartId, productId) {
     try {
-      // Implementa este método según tu lógica específica.
     } catch (error) {
       logger.error(error);
       throw new Error('Error al eliminar el producto del carrito');

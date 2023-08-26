@@ -1,3 +1,5 @@
+import { logger } from '../utils.js'
+
 const formRegister = document.getElementById("formRegister");
 formRegister.addEventListener('submit', async e => {
 
@@ -8,8 +10,8 @@ formRegister.addEventListener('submit', async e => {
     email: formRegister[1].value,
     password: formRegister[2].value,
   }
-  console.log("DATOS");
-  console.log(datos);
+  logger.info("DATOS");
+  logger.info(datos);
 
   const respuesta = await fetch('/api/auth/register', {
     method: 'POST',
@@ -22,7 +24,7 @@ formRegister.addEventListener('submit', async e => {
 
   const content = await respuesta.json();
 
-  console.log(content);
+  logger.info(content);
 
   const { access_token } = content;
 

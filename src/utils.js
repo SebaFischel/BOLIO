@@ -24,7 +24,7 @@ export const authToken = (req, res, next) => {
   const authToken = req.headers.authorization;
 
   if (!authToken) {
-    console.log('No authToken provided');
+    logger.error('No authToken provided');
     return res.status(401).send({ error: 'Not authenticated' });
   }
 
@@ -32,16 +32,15 @@ export const authToken = (req, res, next) => {
 
   jwt.verify(token, PRIVATE_KEY, (error, decoded) => {
     if (error) {
-      console.log('Token verification error:', error);
+      logger.error('Token verification error:', error);
       return res.status(403).json({ error: 'Token verification failed' });
     }
   
-    // Verifica si el campo userId existe en el objeto decoded
-    if (decoded && decoded.userId) { // Asegúrate de que decoded no sea nulo
+    if (decoded && decoded.userId) { 
       req.userId = decoded.userId;
       next();
     } else {
-      console.log('Token JWT no contiene el campo userId del usuario');
+      logger.error('Token JWT no contiene el campo userId del usuario');
       return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
     }
   });

@@ -28,7 +28,7 @@
 
     <a href="/products">Volver a la página principal</a>
 
-    <!-- Elemento para mostrar mensajes de éxito -->
+
     <div id="success-message" style="display: none; color: green;">
         Producto eliminado correctamente.
     </div>
@@ -38,7 +38,7 @@
         const deleteButtons = document.querySelectorAll('.delete-button');
         const successMessage = document.getElementById('success-message');
 
-        // Función para eliminar un producto del carrito
+
         function deleteProductFromCart(cartId, productId) {
             fetch(`/api/carts/${cartId}/product/${productId}`, {
                 method: 'DELETE',
@@ -49,16 +49,14 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Ocultar el mensaje de éxito si estaba visible
+
                     successMessage.style.display = 'none';
 
-                    // Eliminar el elemento del producto del DOM
                     const productElement = document.getElementById(productId);
                     if (productElement) {
                         productElement.remove();
                     }
 
-                    // Mostrar el mensaje de éxito
                     successMessage.style.display = 'block';
                 } else {
                     throw new Error('Error en la solicitud');

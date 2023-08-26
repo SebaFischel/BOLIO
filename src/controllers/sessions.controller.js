@@ -101,12 +101,12 @@ const registerUser = async (req, res) => {
   const logoutUser = (req, res) => {
     req.logout((err) => {
       if (err) {
-        console.error('Error al cerrar la sesión:', err);
+        logger.error('Error al cerrar la sesión:', err);
         return res.status(500).send({ status: 'error', error: 'Logout fail' });
       }
       req.session.destroy((err) => {
         if (err) {
-          console.error('Error al destruir la sesión:', err);
+          logger.error('Error al destruir la sesión:', err);
           return res.status(500).send({ status: 'error', error: 'Logout fail' });
         }
   

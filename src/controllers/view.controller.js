@@ -2,6 +2,7 @@ import { Router } from 'express';
 import ProductManager from '../dao/dbManagers/ProductManager.js';
 import productModel from '../dao/dbManagers/models/ProductModel.js';
 import CartManager from '../dao/dbManagers/CartManager.js'
+import { logger } from '../utils.js'
 
 const cartManager = new CartManager();
 const router = Router();
@@ -59,8 +60,7 @@ const index = (req, res) => {
         const userCarts = await Promise.all(userCartIds.map(async (cartId) => {
             const cart = await cartManager.getById(cartId);
 
-            // Verifica si cart.products está definido antes de operar en él
-            if (cart && cart.products) { // Agregamos una verificación para 'cart'
+            if (cart && cart.products) { 
                 cart.products.forEach((product) => {
                     product.totalPrice = product.product.price * product.quantity;
                 });
@@ -70,12 +70,10 @@ const index = (req, res) => {
 
             return cart;
         }));
-
-        console.log('User Carts:', userCarts);
-
+        
         res.render('cart', { user: userData, userCarts });
     } catch (error) {
-        console.error('Error:', error);
+        logger.error('Error:', error);
         res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
     }
 };

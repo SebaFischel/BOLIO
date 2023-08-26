@@ -1,7 +1,6 @@
 import { Router } from "express";
 import __dirname from "../utils.js";
 
-
 const router = Router();
 
 const getLogs = async (req, res) => {

@@ -25,8 +25,6 @@ router.get('/register', publicAccess,registerView)
 
 router.get('/login', publicAccess, loginView)
 
-// router.get('/productsPrivate', privateAccess, productsPrivate)
-
 router.get('/cart', privateAccess, viewCart)
 
 

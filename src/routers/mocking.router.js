@@ -5,8 +5,4 @@ const router = Router();
 
 router.get("/mockingProducts", mockingProducts )
 
-
-
-
-
 export default router;

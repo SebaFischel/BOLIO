@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { generateMockProduct } from '../utils.js'
 import productModel from '../dao/dbManagers/models/ProductModel.js'
+import { logger } from '../utils.js'
 
 
 const router = Router();
@@ -13,7 +14,7 @@ const mockingProducts = async (req, res) => {
 
     res.json({ message: 'Productos guardados en la base de datos' });
   } catch (error) {
-    console.log(error)
+    logger.error(error)
     res.status(500).json({ error: 'Error al guardar los productos en la base de datos' });
   }
 };

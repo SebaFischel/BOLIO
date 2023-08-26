@@ -2,11 +2,12 @@
   "name": "src",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect app.js",
+    "start": "set NODE_ENV=production&& node src/app.js",
+    "start:dev": "set NODE_ENV=development&& node src/app.js",
     "debug": "node --inspect-brk app.js"
   },
   "keywords": [],

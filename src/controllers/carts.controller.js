@@ -6,8 +6,6 @@ import jwt from 'jsonwebtoken';
 import cartModel from "../dao/dbManagers/models/CartModel.js";
 import userModel from "../dao/dbManagers/models/UsersModel.js";
 
-import productModel from '../dao/dbManagers/models/ProductModel.js'
-
 const PRIVATE_KEY = 'coder39760';
 
 const router = Router();
@@ -27,7 +25,7 @@ const postCart = async (req, res) => {
 
       jwt.verify(token, PRIVATE_KEY, async (error, decoded) => {
           if (error) {
-              console.log('Token verification error:', error);
+            logger.error('Token verification error:', error);
               return res.status(403).json({ error: 'Token verification failed' });
           }
           if (decoded && decoded.userId) {
@@ -35,78 +33,65 @@ const postCart = async (req, res) => {
 
               let user = await userModel.findById(userId);
 
-              console.log("Verificando usuario...");
+              logger.info("Verificando usuario...");
 
               if (!user) {
-                  // Si el usuario no existe, créalo
                   user = await userModel.create({ _id: userId, cart: [] });
-                  console.log('Nuevo Usuario Creado:', user);
+                  logger.info('Nuevo Usuario Creado:', user);
               }
 
-              // 3. Verifique la estructura del objeto req.body
               const newProducts = req.body.products;
-              console.log("Productos recibidos:", newProducts);
+              logger.info("Productos recibidos:", newProducts);
 
               let existingCart = null;
 
               if (user.cart.length > 0) {
-                  // Si el usuario ya tiene un carrito, obtén el primer carrito de la lista
                   existingCart = await cartModel.findById(user.cart[0]);
               }
 
               if (!existingCart) {
-                  // Si el usuario no tiene un carrito existente, crea uno nuevo
                   const cart = {
                       products: newProducts,
                   };
 
                   existingCart = await cartModel.create(cart);
-                  console.log('Nuevo Carrito Creado:', existingCart);
-
-                  // Asocia el carrito con el usuario
+                  logger.info('Nuevo Carrito Creado:', existingCart);
                   user.cart.push(existingCart._id);
                   await user.save();
-                  console.log('Usuario Actualizado con Nuevo Carrito:', user);
+                  logger.info('Usuario Actualizado con Nuevo Carrito:', user);
               } else {
-                  // Verifica si newProducts es un iterable antes de recorrerlo
                   if (Array.isArray(newProducts) && newProducts.length > 0) {
-                      // Itera sobre los nuevos productos y agrégalos al carrito existente
                       for (const newProduct of newProducts) {
                           const existingProductIndex = existingCart.products.findIndex(
                               (product) => product.product.toString() === newProduct.product.toString()
                           );
 
                           if (existingProductIndex !== -1) {
-                              // Si el producto ya existe en el carrito, aumenta la cantidad en 1
                               existingCart.products[existingProductIndex].quantity += 1;
                           } else {
-                              // Si el producto no existe en el carrito, agrégalo como un nuevo producto
                               existingCart.products.push(newProduct);
                           }
                       }
 
-                      // Calcula el totalPrice del carrito actualizado
                       existingCart.totalPrice = existingCart.products.reduce(
                           (total, product) => total + product.product.price * product.quantity,
                           0
                       );
 
-                      // Guarda el carrito actualizado en la base de datos
                       await existingCart.save();
-                      console.log('Carrito Actualizado con Nuevos Productos:', existingCart);
+                      logger.info('Carrito Actualizado con Nuevos Productos:', existingCart);
                   }
               }
 
-              // Devuelve el carrito actualizado
               res.send(existingCart);
           } else {
-              console.log('Token JWT no contiene el campo userId del usuario');
+            logger.error('Token JWT no contiene el campo userId del usuario');
               return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
           }
       });
   } catch (error) {
-      console.error("Error en el controlador postCart:", error);
-      console.error(error);
+      logger.error("Error en el controlador postCart:", error);
+      logger.error(error);
       res.status(401).send('Token JWT inválido o expirado');
   }
 };
@@ -161,7 +146,6 @@ const postCart = async (req, res) => {
         const cartId = req.params.cid;
         const productId = req.params.pid;
 
-        // Llama a una función en cartManager para eliminar el producto del carrito
         const updatedCart = await cartManager.deleteProductFromCart(cartId, productId);
 
         if (typeof updatedCart === "string") {
@@ -178,7 +162,6 @@ const postCart = async (req, res) => {
         res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
     }
 };
-  
 
   const updateCart = (req, res) => {
     const cartId = req.params.cid;
@@ -216,34 +199,30 @@ const postCart = async (req, res) => {
 
   const purchaseCart = async (req, res) => {
     const cartId = req.params.cid;
-    const userId = req.session.user._id; // Asegúrate de que esta línea obtenga el ID del usuario correctamente
+    const userId = req.session.user._id; 
 
     try {
-        console.log("Inicio del controlador purchaseCart");
-        console.log("ID del carrito:", cartId);
-        console.log("ID del usuario:", userId);
-
-        // Realiza la compra y guarda el mensaje de éxito o el error
+      logger.info("Inicio del controlador purchaseCart");
+      logger.info("ID del carrito:", cartId);
+      logger.info("ID del usuario:", userId);
+ 
         const message = await cartManager.purchaseCart(cartId, req.session.user.first_name, req.session.user.last_name);
 
-        console.log("Compra exitosa. Eliminando carrito...");
-
-        // Elimina el carrito de la colección de carritos
+        logger.info("Compra exitosa. Eliminando carrito...");
+       
         await cartModel.findByIdAndDelete(cartId);
 
-        console.log("Carrito eliminado. Actualizando usuario...");
+        logger.info("Carrito eliminado. Actualizando usuario...");
 
-        // Actualiza el array 'cart' en el documento del usuario para eliminar el ID del carrito
         const updatedUser = await userModel.findByIdAndUpdate(userId, {
             $pull: { cart: cartId },
         });
 
-        console.log("Usuario actualizado:", updatedUser);
+        logger.info("Usuario actualizado:", updatedUser);
 
-        // Devuelve la respuesta con el mensaje de éxito o el error
         res.status(200).json({ message });
     } catch (error) {
-        console.error("Error en el controlador purchaseCart:", error);
+        logger.error("Error en el controlador purchaseCart:", error);
         logger.error(error);
         res.status(500).json({ error: 'Error during the purchase process' });
     }

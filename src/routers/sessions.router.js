@@ -4,9 +4,7 @@ import { registerUser, loginUser, logoutUser, loginGithub, loginCallback, authen
 
 const router = Router();
 
-
 router.post('/register', registerUser)
-
 
 router.post('/login', loginUser)
 

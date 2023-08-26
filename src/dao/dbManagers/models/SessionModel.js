@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 
-// Define el esquema de la sesión
 const sessionSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -20,7 +19,6 @@ const sessionSchema = new mongoose.Schema({
   },
 });
 
-// Crea el modelo de sesión a partir del esquema
 const SessionModel = mongoose.model('Session', sessionSchema);
 
 export default SessionModel;

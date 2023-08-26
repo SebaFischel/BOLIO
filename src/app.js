@@ -70,14 +70,14 @@ const productsOnList = [];
 const messages = [];
 
 io.on("connection", (socket) => {
-  console.log("Connection with socket:", socket.id);
+  logger.info("Connection with socket:", socket.id);
 
   socket.emit("productList", productsOnList);
 
   socket.on("newProduct", (data) => {
     ProductManager.addProduct(data);
     io.emit("productList", productsOnList);
-    console.log("Product added", data);
+    logger.info("Product added", data);
   });
 
   socket.on("deleteProduct", (id) => {
