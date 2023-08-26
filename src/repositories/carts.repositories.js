@@ -25,6 +25,11 @@ export default class CartsRepository {
         return result;
     }
 
+    purchaseCart = async (cartId, purchaserFirstName, purchaserLastName) => {
+        const result = await this.dao.purchaseCart(cartId, purchaserFirstName, purchaserLastName);
+        return result;
+    }
+
     deleteProductFromCart = async (cartId, productId) => {
         const result = await this.dao.deleteProductFromCart(cartId, productId);
         return result;

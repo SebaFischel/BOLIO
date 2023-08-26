@@ -20,8 +20,22 @@ addProductToCart = async (cartId, productId) => {
     return result;
 }
 
+purchaseCart = async (cartId, purchaserFirstName, purchaserLastName) => {
+    const result = await CartsRepository.purchaseCart(cartId, purchaserFirstName, purchaserLastName);
+    return result;
+}
+
 deleteProductFromCart = async (cartId, productId) => {
     const result = CartsRepository.deleteProductFromCart(cartId, productId);
     return result;
+}
+
+export {
+    getAll,
+    save,
+    getById,
+    addProductToCart,
+    purchaseCart,
+    deleteProductFromCart,
 }
 

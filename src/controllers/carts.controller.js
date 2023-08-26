@@ -20,7 +20,6 @@ const getCarts = async (req, res) => {
     const carts = await cartManager.getAll();
     res.send(carts);
   };
-//me gusta
 
 const postCart = async (req, res) => {
   try {

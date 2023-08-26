@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { faker } from '@faker-js/faker';
 import dotenv from 'dotenv';
 import winston from 'winston';
+import path from 'path';
 
 dotenv.config();
 
@@ -56,31 +57,21 @@ export const createHash = password =>
     bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
     const fakeProductGenerator = () => {
-        return {
-
-            id: faker.database.mongodbObjectId(),
-        
-            title: faker.commerce.productName(),
-        
-            description: faker.commerce.productDescription(),
-        
-            code: faker.string.alpha(6),
-        
-            price: faker.commerce.price(),
-        
-            thumbnail: faker.image.image(),
-        
-            stock: faker.string.numeric(1),
-        
-            category: faker.commerce.productMaterial(),
-        
-          };
+      return {
+        title: faker.commerce.productName(),
+        description: faker.commerce.productDescription(),
+        code: faker.random.alphaNumeric(6),
+        price: faker.number.int({ min: 1, max: 1000, precision: 0.01 }),
+        stock: faker.number.int({ min: 1, max: 100 }),
+        category: faker.commerce.productMaterial(),
+        status: true,
       };
+    };
       
-      export const generateMockProduct = () => {
+      export const generateMockProduct = (count) => {
         let products = [];
       
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < count; i++) {
           products.push(fakeProductGenerator());
         }
       
@@ -108,7 +99,6 @@ export const createHash = password =>
       };
       
       let logger;
-      
       
       if (ENVIRONMENT === 'development') {
         logger = winston.createLogger({
@@ -141,7 +131,7 @@ export const createHash = password =>
               ),
             }),
             new winston.transports.File({
-              filename: 'logs/errors.log',
+              filename: path.join(__dirname, '..', 'logs', 'errors.log'), 
               level: 'error',
             }),
           ],
@@ -168,6 +158,8 @@ export const createHash = password =>
         req.logger = logger;
         next();
     }
+
+    logger.info(`ENVIRONMENT is set to: ${ENVIRONMENT}`);
 
     export {
       logger,
