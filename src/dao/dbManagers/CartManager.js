@@ -3,6 +3,7 @@ import productModel from '../dbManagers/models/ProductModel.js';
 import ticketModel from './models/TicketModel.js';
 import { v4 as uuidv4 } from "uuid";
 import { logger } from '../../utils.js'
+import { transporter } from '../../controllers/mailSms.controller.js';
 
 
 export default class Carts {
@@ -68,7 +69,7 @@ export default class Carts {
   }
   
 
-  async purchaseCart(cartId, purchaserFirstName, purchaserLastName) {
+  async purchaseCart(cartId, purchaserFirstName, purchaserLastName, purchaserEmail) {
     try {
         let total = 0;
         logger.info("Inicio del método purchaseCart");
@@ -118,6 +119,26 @@ export default class Carts {
             const ticket = new ticketModel(ticketData);
             await ticket.save();
 
+            try {
+                const mailOptions = {
+                    from: 'fischel.sebastian@gmail.com', 
+                    to: purchaserEmail, 
+                    subject: 'Your Purchase Ticket',
+                    html: `<p>Hola ${purchaserFirstName},</p>
+                            <p>Tu compra se realizó con exito</p>
+                            <p>El codigo de tu ticket es: ${ticket.code}</p>
+                            <p>Fecha de compra: ${ticket.purchase_datetime}</p>
+                            <p>Cantidad: ${ticket.amount}</p>
+                            <p>Comprador: ${ticket.purchaser}</p>`
+                };
+
+                await transporter.sendMail(mailOptions);
+                logger.info('Ticket sent by email to:', purchaserEmail);
+            } catch (emailError) {
+                logger.error('Error sending email:', emailError);
+                
+            }
+
             logger.info("Finalización exitosa de la compra");
             return "Purchase completed successfully";
         }
@@ -154,6 +175,5 @@ async deleteProductFromCart(cartId, productId) {
       throw new Error("Error al eliminar el producto del carrito");
   }
 }
-
 
 }

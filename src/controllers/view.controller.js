@@ -54,29 +54,34 @@ const index = (req, res) => {
 
    const viewCart = async (req, res) => {
     try {
-        const userData = req.session.user;
-        const userCartIds = userData.cart;
-
-        const userCarts = await Promise.all(userCartIds.map(async (cartId) => {
-            const cart = await cartManager.getById(cartId);
-
-            if (cart && cart.products) { 
-                cart.products.forEach((product) => {
-                    product.totalPrice = product.product.price * product.quantity;
-                });
-
-                cart.totalPrice = cart.products.reduce((total, product) => total + product.totalPrice, 0);
-            }
-
-            return cart;
-        }));
-        
-        res.render('cart', { user: userData, userCarts });
+      const userData = req.session.user;
+  
+      if (!userData) {
+        return res.redirect('/login');
+      }
+  
+      const userCartIds = userData.cart;
+  
+      const userCarts = await Promise.all(userCartIds.map(async (cartId) => {
+        const cart = await cartManager.getById(cartId);
+  
+        if (cart && cart.products) {
+          cart.products.forEach((product) => {
+            product.totalPrice = product.product.price * product.quantity;
+          });
+  
+          cart.totalPrice = cart.products.reduce((total, product) => total + product.totalPrice, 0);
+        }
+  
+        return cart;
+      }));
+  
+      res.render('cart', { user: userData, userCarts });
     } catch (error) {
-        logger.error('Error:', error);
-        res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
+      logger.error('Error:', error);
+      res.status(500).json({ status: 'error', error: 'Error interno del servidor' });
     }
-};
+  };
 
 
   export default router;

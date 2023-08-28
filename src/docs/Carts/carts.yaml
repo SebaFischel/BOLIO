@@ -2,6 +2,8 @@ paths:
   /api/carts:
     get:
       summary: Obtiene todos los carritos
+      tags:
+        - Carts
       responses:
         "200":
           description: Lista de carritos obtenida satisfactoriamente
@@ -11,40 +13,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/cart'
-        "500":
-          description: Error interno del servidor
 
     post:
-      summary: Crea un nuevo carrito
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                products:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      product:
-                        type: string
-                        description: ID del producto
-                        example: "productId123"
-                      quantity:
-                        type: number
-                        description: Cantidad del producto en el carrito
-                        example: 2
+      summary: Crea un carrito vacío
+      tags:
+        - Carts
       responses:
         "201":
-          description: Carrito creado satisfactoriamente
+          description: Carrito vacío creado satisfactoriamente
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/cart'
-        "500":
-          description: Error interno del servidor
 
   /api/carts/{id}:
     get:
@@ -56,6 +36,8 @@ paths:
           description: ID del carrito
           schema:
             type: string
+      tags:
+        - Carts
       responses:
         "200":
           description: Carrito obtenido satisfactoriamente
@@ -65,8 +47,6 @@ paths:
                 $ref: '#/components/schemas/cart'
         "404":
           description: Carrito no encontrado
-        "500":
-          description: Error interno del servidor
 
     put:
       summary: Actualiza un carrito por su ID
@@ -77,6 +57,8 @@ paths:
           description: ID del carrito
           schema:
             type: string
+      tags:
+        - Carts
       requestBody:
         required: true
         content:
@@ -92,12 +74,12 @@ paths:
                 $ref: '#/components/schemas/cart'
         "404":
           description: Carrito no encontrado
-        "500":
-          description: Error interno del servidor
 
   /api/carts/{cid}/product/{pid}:
     post:
       summary: Agrega un producto a un carrito por su ID
+      security:
+        - bearerAuth: []
       parameters:
         - name: cid
           in: path
@@ -111,6 +93,8 @@ paths:
           description: ID del producto
           schema:
             type: string
+      tags:
+        - Carts
       responses:
         "200":
           description: Producto agregado al carrito satisfactoriamente
@@ -120,8 +104,6 @@ paths:
                 $ref: '#/components/schemas/cart'
         "404":
           description: Carrito o producto no encontrado
-        "500":
-          description: Error interno del servidor
 
     delete:
       summary: Elimina un producto de un carrito por su ID
@@ -138,13 +120,13 @@ paths:
           description: ID del producto
           schema:
             type: string
+      tags:
+        - Carts
       responses:
         "200":
           description: Producto eliminado del carrito satisfactoriamente
         "404":
           description: Carrito o producto no encontrado
-        "500":
-          description: Error interno del servidor
 
   /api/carts/{cid}/products/{pid}:
     put:
@@ -156,6 +138,8 @@ paths:
           description: ID del carrito
           schema:
             type: string
+      tags:
+        - Carts
       requestBody:
         required: true
         content:
@@ -174,6 +158,10 @@ paths:
                       quantity:
                         type: number
                         description: Cantidad del producto en el carrito
+                      price:
+                        type: number
+                        description: Precio del producto
+
       responses:
         "200":
           description: Carrito actualizado satisfactoriamente
@@ -183,8 +171,6 @@ paths:
                 $ref: '#/components/schemas/cart'
         "404":
           description: Carrito no encontrado
-        "500":
-          description: Error interno del servidor
 
   /api/carts/{cid}/purchase:
     post:
@@ -196,13 +182,13 @@ paths:
           description: ID del carrito
           schema:
             type: string
+      tags:
+        - Carts
       responses:
         "200":
           description: Compra realizada satisfactoriamente
         "404":
           description: Carrito no encontrado
-        "500":
-          description: Error interno del servidor
 
 components:
   schemas:
@@ -224,8 +210,16 @@ components:
               quantity:
                 type: number
                 description: Cantidad del producto en el carrito
-      example:
-        _id: "cartId123"
-        products:
-          - product: "productId123"
-            quantity: 2
+              price:
+                type: number
+                description: Precio del producto
+                example:
+                  _id: "cartId123"
+                  products:
+                    - product: "productId123"
+                      quantity: 2
+                      price: 10.99
+                  totalPrice: 21.98
+
+
+

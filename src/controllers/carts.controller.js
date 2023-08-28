@@ -19,82 +19,98 @@ const getCarts = async (req, res) => {
     res.send(carts);
   };
 
-const postCart = async (req, res) => {
-  try {
+  const createCart = async (req, res) => {
+    try {
+      const emptyCart = await cartModel.create({ products: [] });
+  
+      res.status(201).json(emptyCart);
+    } catch (error) {
+      logger.error("Error en la función createCart:", error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+  };
+
+  const postCart = async (req, res) => {
+    try {
       const token = req.headers.authorization.split(' ')[1];
-
+  
       jwt.verify(token, PRIVATE_KEY, async (error, decoded) => {
-          if (error) {
-            logger.error('Token verification error:', error);
-              return res.status(403).json({ error: 'Token verification failed' });
+        if (error) {
+          logger.error('Token verification error:', error);
+          return res.status(403).json({ error: 'Token verification failed' });
+        }
+  
+        if (decoded && decoded.userId) {
+          const userId = decoded.userId;
+  
+          let user = await userModel.findById(userId);
+  
+          logger.info("Verificando usuario...");
+  
+          if (!user) {
+            user = await userModel.create({ _id: userId, cart: [] });
+            logger.info('Nuevo Usuario Creado:', user);
           }
-          if (decoded && decoded.userId) {
-              const userId = decoded.userId;
-
-              let user = await userModel.findById(userId);
-
-              logger.info("Verificando usuario...");
-
-              if (!user) {
-                  user = await userModel.create({ _id: userId, cart: [] });
-                  logger.info('Nuevo Usuario Creado:', user);
-              }
-
-              const newProducts = req.body.products;
-              logger.info("Productos recibidos:", newProducts);
-
-              let existingCart = null;
-
-              if (user.cart.length > 0) {
-                  existingCart = await cartModel.findById(user.cart[0]);
-              }
-
-              if (!existingCart) {
-                  const cart = {
-                      products: newProducts,
-                  };
-
-                  existingCart = await cartModel.create(cart);
-                  logger.info('Nuevo Carrito Creado:', existingCart);
-                  user.cart.push(existingCart._id);
-                  await user.save();
-                  logger.info('Usuario Actualizado con Nuevo Carrito:', user);
-              } else {
-                  if (Array.isArray(newProducts) && newProducts.length > 0) {
-                      for (const newProduct of newProducts) {
-                          const existingProductIndex = existingCart.products.findIndex(
-                              (product) => product.product.toString() === newProduct.product.toString()
-                          );
-
-                          if (existingProductIndex !== -1) {
-                              existingCart.products[existingProductIndex].quantity += 1;
-                          } else {
-                              existingCart.products.push(newProduct);
-                          }
-                      }
-
-                      existingCart.totalPrice = existingCart.products.reduce(
-                          (total, product) => total + product.product.price * product.quantity,
-                          0
-                      );
-
-                      await existingCart.save();
-                      logger.info('Carrito Actualizado con Nuevos Productos:', existingCart);
-                  }
-              }
-
-              res.send(existingCart);
+  
+          const newProducts = req.body.products;
+          logger.info("Productos recibidos:", newProducts);
+  
+          let existingCart = null;
+  
+          if (user.cart.length > 0) {
+            existingCart = await cartModel.findById(user.cart[0]);
+          }
+  
+          if (!existingCart) {
+            const cart = {
+              products: newProducts,
+            };
+  
+            existingCart = await cartModel.create(cart);
+            logger.info('Nuevo Carrito Creado:', existingCart);
+            user.cart.push(existingCart._id);
+            await user.save();
+            logger.info('Usuario Actualizado con Nuevo Carrito:', user);
+  
+            req.session.user = user;
           } else {
-            logger.error('Token JWT no contiene el campo userId del usuario');
-              return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
+            if (Array.isArray(newProducts) && newProducts.length > 0) {
+              for (const newProduct of newProducts) {
+                const existingProductIndex = existingCart.products.findIndex(
+                  (product) => product.product.toString() === newProduct.product.toString()
+                );
+  
+                if (existingProductIndex !== -1) {
+                  existingCart.products[existingProductIndex].quantity += 1;
+                } else {
+                  existingCart.products.push(newProduct);
+                }
+              }
+  
+              existingCart.totalPrice = existingCart.products.reduce(
+                (total, product) => total + product.product.price * product.quantity,
+                0
+              );
+  
+              await existingCart.save();
+              logger.info('Carrito Actualizado con Nuevos Productos:', existingCart);
+            }
+
+            req.session.user = user;
           }
+  
+          res.send(existingCart);
+        } else {
+          logger.error('Token JWT no contiene el campo userId del usuario');
+          return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
+        }
       });
-  } catch (error) {
+    } catch (error) {
       logger.error("Error en el controlador postCart:", error);
       logger.error(error);
       res.status(401).send('Token JWT inválido o expirado');
-  }
-};
+    }
+  };
 
 
   const getId = async (req, res) => {
@@ -199,17 +215,17 @@ const postCart = async (req, res) => {
 
   const purchaseCart = async (req, res) => {
     const cartId = req.params.cid;
-    const userId = req.session.user._id; 
+    const userId = req.session.user._id;
 
     try {
-      logger.info("Inicio del controlador purchaseCart");
-      logger.info("ID del carrito:", cartId);
-      logger.info("ID del usuario:", userId);
- 
-        const message = await cartManager.purchaseCart(cartId, req.session.user.first_name, req.session.user.last_name);
+        logger.info("Inicio del controlador purchaseCart");
+        logger.info("ID del carrito:", cartId);
+        logger.info("ID del usuario:", userId);
+
+        const message = await cartManager.purchaseCart(cartId, req.session.user.first_name, req.session.user.last_name, req.session.user.email);
 
         logger.info("Compra exitosa. Eliminando carrito...");
-       
+
         await cartModel.findByIdAndDelete(cartId);
 
         logger.info("Carrito eliminado. Actualizando usuario...");
@@ -240,5 +256,6 @@ const postCart = async (req, res) => {
   updateCart,
   updateProductsToCart,
   purchaseCart,
+  createCart,
 
 }
