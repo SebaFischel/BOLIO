@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { index, realTimeProducts, products, registerView, loginView, productsPrivate, viewCart } from '../controllers/view.controller.js';
- import { authToken } from '../utils.js';
+import { index, realTimeProducts, products, registerView, loginView, viewCart } from '../controllers/view.controller.js';
+
 
 const router = Router();
 

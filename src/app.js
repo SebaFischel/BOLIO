@@ -31,17 +31,44 @@ const io = new Server(server);
 
 const swaggerOptions = {
   definition: {
-      openapi: '3.0.1',
-      info: {
-          title: 'Documentación del proyecto de e-commerce CoderHouse ',
-          description: 'API pensada para un e-commerce'
-      }
+    openapi: '3.0.1',
+    info: {
+      title: 'Documentación del proyecto de e-commerce CoderHouse',
+      description: 'API pensada para un e-commerce',
+    },
+    components: {
+      securitySchemes: {
+        jwtAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [{ jwtAuth: [] }],
   },
-  apis: [`${__dirname}/docs/**/*.yaml`]
+  apis: [`${__dirname}/docs/**/*.yaml`],
 };
 
 const specs = swaggerJsdoc(swaggerOptions);
-app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
+
+app.use('/api/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs, {
+  swaggerOptions: {
+    plugins: [
+      {
+        statePlugins: {
+          auth: {
+            authorize: (_request, _authSelectors) => {
+              const jwtToken = localStorage.getItem('jwtToken');
+              return jwtToken || '';
+            },
+          },
+        },
+      },
+    ],
+  },
+}));
+
 
 initializePassport();
 app.engine('handlebars', handlebars.engine());
