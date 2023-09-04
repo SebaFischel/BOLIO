@@ -16,7 +16,12 @@ const PRIVATE_KEY = 'coder39760';
 const ENVIRONMENT = process.env.NODE_ENV;
 
 export const generateToken = (user) => {
-  const token = jwt.sign({ userId: user._id }, PRIVATE_KEY, { expiresIn: '10y' });
+  const payload = {
+    userId: user._id,
+    role: user.role,
+  };
+  
+  const token = jwt.sign(payload, PRIVATE_KEY, { expiresIn: '10y' });
   return token;
 };
 
@@ -35,17 +40,29 @@ export const authToken = (req, res, next) => {
       logger.error('Token verification error:', error);
       return res.status(403).json({ error: 'Token verification failed' });
     }
-  
-    if (decoded && decoded.userId) { 
+
+    if (decoded && decoded.userId && decoded.role) {
       req.userId = decoded.userId;
+      req.userRole = decoded.role; 
       next();
     } else {
-      logger.error('Token JWT no contiene el campo userId del usuario');
-      return res.status(403).json({ error: 'Token JWT no contiene el campo userId del usuario' });
+      logger.error('Token JWT no contiene el campo userId o role del usuario');
+      return res.status(403).json({ error: 'Token JWT no contiene el campo userId o role del usuario' });
     }
   });
-
 };
+
+export const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+
+    next();
+} else {
+
+    res.status(403).send('Acceso denegado. Esta página es solo para administradores.');
+}
+};
+
+
 
 export const isValidPassword = async (password, hash) => {
     return bcrypt.compareSync(password, hash);

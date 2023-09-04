@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { index, realTimeProducts, products, registerView, loginView, viewCart } from '../controllers/view.controller.js';
-
+import { index, realTimeProducts, products, registerView, loginView, viewCart, users } from '../controllers/view.controller.js';
+import { isAdmin } from '../utils.js';
+import { authenticateUser } from '../controllers/sessions.controller.js';
 
 const router = Router();
 
@@ -20,12 +21,13 @@ router.get('/realTimeProducts', realTimeProducts)
 
 router.get('/products', privateAccess ,products)
 
-
 router.get('/register', publicAccess,registerView)
 
 router.get('/login', publicAccess, loginView)
 
 router.get('/cart', privateAccess, viewCart)
+
+router.get('/users', authenticateUser, isAdmin, users)
 
 
 

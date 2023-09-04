@@ -20,6 +20,7 @@ import swaggerUiExpress from 'swagger-ui-express';
 import contact from './routers/mailSms.router.js';
 import dotenv from  'dotenv'
 import sessionConfig from './config/sessionConfig.js'
+import usersRouter from './routers/users.router.js'
 
 dotenv.config();
 
@@ -92,6 +93,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/mocking', mockingProducts);
 app.use('/api/logs', logsRouter);
 app.use('/', contact);
+app.use('/api/users', usersRouter)
 
 const productsOnList = [];
 const messages = [];

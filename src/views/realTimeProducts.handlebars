@@ -1,102 +1,120 @@
-<div>
-  <form id="product-form">
-    <label for="title">Title:</label>
-    <input type="text" id="title" name="title" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Producto</title>
+</head>
+<body>
+  <div>
+    <form id="product-form">
+      <label for="title">Title:</label>
+      <input type="text" id="title" name="title" required>
 
-    <label for="description">Description:</label>
-    <textarea id="description" name="description" required></textarea>
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" required></textarea>
 
-    <label for="price">Price:</label>
-    <input type="number" id="price" name="price" required>
+      <label for="price">Price:</label>
+      <input type="number" id="price" name="price" required>
 
-    <label for="category">Category:</label>
-    <textarea id="category" name="category" required></textarea>
+      <label for="category">Category:</label>
+      <textarea id="category" name="category" required></textarea>
 
-    <label for="stock">Stock:</label>
-    <input type="number" id="stock" name="stock" required>
+      <label for="stock">Stock:</label>
+      <input type="number" id="stock" name="stock" required>
 
-    <label for="code">Code:</label>
-    <input type="text" id="code" name="code" required>
+      <label for="code">Code:</label>
+      <input type="text" id="code" name="code" required>
 
-    <button type="submit">Create product</button>
-  </form>
+      <button type="submit">Create product</button>
+    </form>
 
-  <form id="delete-product-form">
-    <label for="product-id">Product ID:</label>
-    <input type="text" id="product-id" name="product-id" required>
-    <button type="submit">Delete Product</button>
-  </form>
-</div>
+    <div id="product-info">
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="/routers/view.router.js"></script>
-<script>
- 
-  const productForm = document.getElementById("product-form");
+    </div>
 
-  
-  productForm.addEventListener("submit", function (event) {
-    event.preventDefault(); 
+    <form id="delete-product-form">
+      <label for="product-id">Product ID:</label>
+      <input type="text" id="product-id" name="product-id" required>
+      <button type="submit">Delete Product</button>
+    </form>
+  </div>
 
-    
-    const title = document.getElementById("title").value;
-    const description = document.getElementById("description").value;
-    const price = document.getElementById("price").value;
-    const category = document.getElementById("category").value;
-    const stock = document.getElementById("stock").value;
-    const code = document.getElementById("code").value;
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/routers/view.router.js"></script>
+  <script>
+    const productForm = document.getElementById("product-form");
 
-    
-    const productData = {
-      title: title,
-      description: description,
-      price: price,
-      category: category,
-      stock: stock,
-      code: code,
-    };
+    productForm.addEventListener("submit", function (event) {
+      event.preventDefault();
 
-   
-    fetch("/api/products", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(productData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-    
-        console.log("Response from server:", data);
-        
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      const price = document.getElementById("price").value;
+      const category = document.getElementById("category").value;
+      const stock = document.getElementById("stock").value;
+      const code = document.getElementById("code").value;
+
+      const productInfoDiv = document.getElementById("product-info");
+      const productInfo = document.createElement("div");
+
+      productInfo.innerHTML = `
+        <h2>Product Info</h2>
+        <p>Title: ${title}</p>
+        <p>Description: ${description}</p>
+        <p>Price: ${price}</p>
+        <p>Category: ${category}</p>
+        <p>Stock: ${stock}</p>
+        <p>Code: ${code}</p>
+      `;
+
+      productInfoDiv.appendChild(productInfo);
+
+      const productData = {
+        title: title,
+        description: description,
+        price: price,
+        category: category,
+        stock: stock,
+        code: code,
+      };
+
+      fetch("/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(productData),
       })
-      .catch((error) => {
-     
-        console.error("Error:", error);
-      });
-  });
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Response from server:", data);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
 
-  document.getElementById('delete-product-form').addEventListener('submit', function(event) {
-  event.preventDefault(); 
+    document.getElementById("delete-product-form").addEventListener("submit", function (event) {
+      event.preventDefault();
 
-  const productId = document.getElementById('product-id').value;
+      const productId = document.getElementById("product-id").value;
 
+      fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Producto eliminado exitosamente");
+          } else {
+            console.error("Error al eliminar el producto");
+          }
+        })
+        .catch((error) => {
+          console.error("Error en la solicitud:", error);
+        });
+    });
+  </script>
+</body>
+</html>
 
-  fetch(`/api/products/${productId}`, {
-    method: 'DELETE',
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log('Producto eliminado exitosamente');
-
-    } else {
-      console.error('Error al eliminar el producto');
-
-    }
-  })
-  .catch(error => {
-    console.error('Error en la solicitud:', error);
-  });
-});
-
-</script>

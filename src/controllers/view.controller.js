@@ -3,6 +3,7 @@ import ProductManager from '../dao/dbManagers/ProductManager.js';
 import productModel from '../dao/dbManagers/models/ProductModel.js';
 import CartManager from '../dao/dbManagers/CartManager.js'
 import { logger } from '../utils.js'
+import userModel from '../dao/dbManagers/models/UsersModel.js';
 
 const cartManager = new CartManager();
 const router = Router();
@@ -83,6 +84,15 @@ const index = (req, res) => {
     }
   };
 
+  const users = async (req, res) => {
+    try {
+      const users = await userModel.find({}, 'first_name last_name email age role last_connection').lean();
+
+      res.render('users', { users });
+  } catch (error) {
+      res.status(500).json({ error: 'Error al obtener los usuarios.' });
+  }
+};
 
   export default router;
 
@@ -93,6 +103,7 @@ const index = (req, res) => {
     products,
     realTimeProducts,
     index,
-    viewCart
+    viewCart,
+    users,
   }
 

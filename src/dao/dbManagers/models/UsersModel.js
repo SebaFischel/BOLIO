@@ -14,11 +14,16 @@ const userSchema = new mongoose.Schema({
             ref: 'carts'
         }
     ],
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'premium'], 
+    },
+    last_connection: Date,
 });
 
- userSchema.pre("find", function(){
-     this.populate("cart");
- })
+userSchema.pre("find", function(){
+    this.populate("cart");
+})
 
 const userModel = mongoose.model(userCollection, userSchema);
 

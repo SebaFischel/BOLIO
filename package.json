@@ -43,6 +43,7 @@
     "fresh": "^0.5.2",
     "function-bind": "^1.1.1",
     "get-intrinsic": "^1.2.1",
+    "handlebars-helpers": "^0.10.0",
     "has": "^1.0.3",
     "has-symbols": "^1.0.3",
     "http": "^0.0.1-security",

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+</head>
+<body>
+    <h1>Lista de Usuarios</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Edad</th>
+                <th>Rol</th>
+                <th>Última Conexión</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{this.first_name}} {{this.last_name}}</td>
+                <td>{{this.email}}</td>
+                <td>{{this.age}}</td>
+                <td id="role-{{this._id}}">{{this.role}}</td>
+                <td>{{this.last_connection}}</td>
+                <td>
+                    <form onsubmit="event.preventDefault(); changeUserRole('{{this._id}}', this.querySelector('select').value);">
+                        <select>
+                            <option value="user">User</option>
+                            <option value="premium">Premium</option>
+                        </select>
+                        <button type="submit">Cambiar Rol</button>
+                    </form>
+                    <button onclick="deleteUser('{{this._id}}')">Eliminar Usuario</button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <button onclick="deleteInactiveUsers()">Eliminar Usuarios Inactivos</button>
+    <script>
+        function changeUserRole(userId, newRole) {
+            fetch(`/api/users/updateUserRole/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ newRole: newRole }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    window.location.href = '/users'; 
+                } else if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById(`role-${userId}`).textContent = newRole;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al cambiar el rol del usuario');
+            });
+        }
+
+        async function deleteUser(userId) {
+            if (confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+                try {
+                    const response = await fetch(`/api/users/deleteUser/${userId}`, {
+                        method: 'DELETE',
+                    });
+                    const data = await response.json();
+
+                    if (data.message) {
+                        alert(data.message);
+                        window.location.href = '/users'; 
+                    } else {
+                        alert('Error al eliminar el usuario');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el usuario');
+                }
+            }
+        }
+
+        function deleteInactiveUsers() {
+            if (confirm("¿Estás seguro de que deseas eliminar usuarios inactivos?")) {
+                fetch('/api/users/deleteUsers', {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        alert(data.message);
+                        window.location.href = '/users'; 
+                    } else {
+                        alert('Error al eliminar usuarios inactivos');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar usuarios inactivos');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
