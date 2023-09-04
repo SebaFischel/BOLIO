@@ -35,7 +35,7 @@ const jwtLogin = async (req, res) => {
 
         const user = users.find(user => user.email === email && user.password === password);
 
-        if (!user) return res.status(400).send({ status: 'error', error: 'Invalid credentials' });
+        if (!user) return res.status(400).send({ status: 'error', error: 'Credenciales incorrectas' });
 
         const accessToken = generateToken(user);
 
@@ -45,6 +45,7 @@ const jwtLogin = async (req, res) => {
         res.status(500).send({ status: 'error', error });
     }
 };
+
 
 const jwtCurrent =  (req, res) => {
     res.send({ status: 'success', payload: req.user });
