@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "NODE_ENV=production node src/app.js",
-    "dev": "NODE_ENV=development node src/app.js",
+    "dev": "NODE_ENVDEV=development node src/app.js",
     "debug": "node --inspect-brk src/app.js"
   },
   "keywords": [],
